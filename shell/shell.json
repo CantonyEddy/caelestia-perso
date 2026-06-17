@@ -48,10 +48,15 @@
         "wallpaperEnabled": true
     },
     "bar": {
+        "activeWindow": {
+            "compact": false,
+            "inverted": false,
+            "showOnHover": true
+        },
         "clock": {
             "background": false,
             "showDate": false,
-            "showIcon": true
+            "showIcon": false
         },
         "dragThreshold": 20,
         "entries": [
@@ -94,7 +99,7 @@
         ],
         "excludedScreens": [
         ],
-        "persistent": true,
+        "persistent": false,
         "popouts": {
             "activeWindow": true,
             "statusIcons": true,
@@ -110,7 +115,7 @@
             "showAudio": false,
             "showBattery": true,
             "showBluetooth": true,
-            "showKbLayout": false,
+            "showKbLayout": true,
             "showLockStatus": true,
             "showMicrophone": false,
             "showNetwork": true,
@@ -118,10 +123,10 @@
         },
         "tray": {
             "background": false,
-            "compact": false,
+            "compact": true,
             "iconSubs": [
             ],
-            "recolour": false
+            "recolour": true
         },
         "workspaces": {
             "activeIndicator": true,
