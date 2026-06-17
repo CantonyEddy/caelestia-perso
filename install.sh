@@ -3,9 +3,12 @@
 # Idempotent. Ne touche JAMAIS au repo caelestia lui-même.
 #
 # Pour chaque cible :
-#  - déjà le bon symlink   -> ne fait rien
-#  - fichier réel existant  -> sauvegarde en .bak-AAAAMMJJ-HHMMSS puis symlink
-#  - absent                 -> symlink direct
+#  - déjà le bon symlink    -> ne fait rien
+#  - fichier/dossier réel    -> sauvegarde en .bak-AAAAMMJJ-HHMMSS puis symlink
+#  - absent                  -> symlink direct
+#
+# Le dossier hypr/user/ est symlinké EN ENTIER : ajouter un .conf dedans
+# ne nécessite pas de relancer ce script.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -30,7 +33,8 @@ link() {
 echo "Linking fichiers perso depuis $REPO :"
 link "$REPO/hypr/hypr-vars.conf"                "$DEST/hypr-vars.conf"
 link "$REPO/hypr/hypr-user.conf"                "$DEST/hypr-user.conf"
-link "$REPO/fish/user-config.fish"             "$DEST/user-config.fish"
+link "$REPO/hypr/user"                          "$DEST/user"
+link "$REPO/fish/user-config.fish"              "$DEST/user-config.fish"
 link "$REPO/shell/shell.json"                   "$DEST/shell.json"
 link "$REPO/shell/monitors/eDP-1/shell.json"    "$DEST/monitors/eDP-1/shell.json"
 link "$REPO/shell/monitors/HDMI-A-1/shell.json" "$DEST/monitors/HDMI-A-1/shell.json"
