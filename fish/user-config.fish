@@ -2,6 +2,14 @@
 # Sourcé à la fin de config.fish de Caelestia.
 # Tes alias, abbr, env, fonctions perso.
 # alias e "yazi"
+alias w "wiki-tui"
+alias lj "lazyjournal"
+alias lg "lazygit"
+alias h "tldr"
+alias d "gdu"
+alias install "sudo pacman -S"
+alias install-aur "paru -S"
+alias update "sudo pacman -Syu && paru -Syu"
 
 # --- Variables d'environnement ---
 # set -gx EDITOR nvim
