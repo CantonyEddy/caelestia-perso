@@ -10,6 +10,7 @@ alias d "gdu"
 alias install "sudo pacman -S"
 alias install-aur "paru -S"
 alias update "sudo pacman -Syu && paru -Syu"
+alias v "nvim"
 
 # --- Variables d'environnement ---
 # set -gx EDITOR nvim
