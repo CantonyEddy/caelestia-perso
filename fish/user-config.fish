@@ -1,6 +1,7 @@
 # ~/.config/caelestia/user-config.fish
 # Sourcé à la fin de config.fish de Caelestia.
 # Tes alias, abbr, env, fonctions perso.
+# alias e "yazi"
 
 # --- Variables d'environnement ---
 # set -gx EDITOR nvim
@@ -14,3 +15,12 @@
 # function mkcd
 #     mkdir -p $argv[1] && cd $argv[1]
 # end
+
+function e
+	set tmp (mktemp -t "yazi-cwd.XXXXXX")
+	command yazi $argv --cwd-file="$tmp"
+	if read -z cwd < "$tmp"; and [ "$cwd" != "$PWD" ]; and test -d "$cwd"
+		builtin cd -- "$cwd"
+	end
+	command rm -f -- "$tmp"
+end
