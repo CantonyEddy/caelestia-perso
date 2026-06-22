@@ -7,7 +7,7 @@ alias lj "lazyjournal"
 alias lg "lazygit"
 alias h "tldr"
 alias d "gdu"
-alias install "paru -S"
+alias i "paru -S"
 alias update "paru -Syu"
 alias v "nvim"
 
