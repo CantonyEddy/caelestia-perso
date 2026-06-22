@@ -7,9 +7,8 @@ alias lj "lazyjournal"
 alias lg "lazygit"
 alias h "tldr"
 alias d "gdu"
-alias install "sudo pacman -S"
-alias install-aur "paru -S"
-alias update "sudo pacman -Syu && paru -Syu"
+alias install "paru -S"
+alias update "paru -Syu"
 alias v "nvim"
 
 # --- Variables d'environnement ---
