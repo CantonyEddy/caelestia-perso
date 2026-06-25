@@ -27,8 +27,15 @@ user/                  # mes overrides Hyprland en Lua, par thème
 ├── input.lua          # clavier FR + touchpad (REMPLI, activé)
 ├── keybinds.lua       # (template, désactivé)
 ├── rules.lua          # (template, désactivé)
-├── env.lua  general.lua  misc.lua  animations.lua
-├── decoration.lua  group.lua  execs.lua  gestures.lua  scrolling.lua
+├── env.lua  
+├── general.lua  
+├── misc.lua  
+├── animations.lua
+├── decoration.lua  
+├── group.lua  
+├── execs.lua  
+├── gestures.lua  
+├── scrolling.lua
 user-config.fish       # alias/env fish (inchangé)
 shell.json             # config Quickshell (JSON, NON concerné par Lua)
 monitors/<écran>/shell.json   # surcharges par écran (vides)
