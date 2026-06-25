@@ -7,9 +7,10 @@
 -- (ex. apps par défaut, gaps, comportements touchpad...).
 
 return {
-    -- browser = "firefox",   -- ex. remettre Zen : browser = "zen-browser"
+    browser = "uwsm app -- zen-browser",
     -- terminal = "kitty",
-
+    editor = "uwsm app -- zeditor",
+    kbSystemMonitorWs = "SUPER + B",
     -- touchpadDisableTyping = true,
     -- touchpadScrollFactor = 0.3,
 }
