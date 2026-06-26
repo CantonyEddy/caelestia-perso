@@ -7,10 +7,13 @@
 -- (ex. apps par défaut, gaps, comportements touchpad...).
 
 return {
-    browser = "uwsm app -- zen-browser",
+    browser           = "uwsm app -- zen-browser",
     -- terminal = "kitty",
-    editor = "uwsm app -- zeditor",
+    editor            = "uwsm app -- zeditor",
     kbSystemMonitorWs = "SUPER + B",
     -- touchpadDisableTyping = true,
     -- touchpadScrollFactor = 0.3,
+    -- Curseur Bibata (override de sweet-cursors)
+    cursorTheme       = "Bibata-Modern-Classic",
+    cursorSize        = 24,
 }
