@@ -19,4 +19,26 @@ hl.bind("SUPER + M", hl.dsp.exec_cmd("uwsm app -- spotify")) -- ex-$kbMusic
 -- Sélecteur d'emoji : tue une instance existante de fuzzel sinon lance caelestia emoji
 hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p"))
 
+-- ============================================================
+-- Workspaces par KEYCODE (compatible AZERTY + QWERTY, tout clavier)
+-- ============================================================
+-- Réécrit les 4 binds workspace de Caelestia en utilisant les KEYCODES
+-- physiques (code:10..19 = touches 1..0 de la rangée du haut) au lieu des
+-- symboles 1..0 (qui en AZERTY donnent & é " ...).
+--
+-- IMPORTANT : on réutilise LEUR fonction fn.wsaction pour préserver la logique
+-- per-monitor (perMonitorWorkspaces). On ne change QUE la touche.
+-- Chargé après leur keybinds.lua -> ces binds écrasent les leurs (même combo).
+
+local vars = require("variables")
+local fn   = require("hyprland.functions")
+
+for i = 1, 10 do
+    local kc = "code:" .. (9 + i) -- i=1 -> code:10 (touche 1), i=10 -> code:19 (touche 0)
+    hl.bind(vars.kbGoToWs .. " + " .. kc, fn.wsaction("focus", "", i))
+    hl.bind(vars.kbMoveWinToWs .. " + " .. kc, fn.wsaction("move", "", i))
+    hl.bind(vars.kbGoToWsGroup .. " + " .. kc, fn.wsaction("focus", "group", i))
+    hl.bind(vars.kbMoveWinToWsGroup .. " + " .. kc, fn.wsaction("move", "group", i))
+end
+
 return true
