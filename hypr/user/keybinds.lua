@@ -11,6 +11,7 @@
 -- Lancement d'apps (remplace app2unit -- <app>)
 hl.bind("SUPER + G", hl.dsp.exec_cmd("uwsm app -- steam"))
 hl.bind("SUPER + O", hl.dsp.exec_cmd("uwsm app -- obsidian"))
+hl.bind("SUPER + I", hl.dsp.exec_cmd("uwsm app -- claude-desktop"))
 
 -- Override des toggles Caelestia : musique (Super+M) et communication (Super+D)
 hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- vesktop")) -- ex-$kbCommunication

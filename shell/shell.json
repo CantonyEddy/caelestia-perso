@@ -51,7 +51,7 @@
         "clock": {
             "background": false,
             "showDate": false,
-            "showIcon": true
+            "showIcon": false
         },
         "dragThreshold": 20,
         "entries": [
@@ -110,7 +110,7 @@
             "showAudio": false,
             "showBattery": true,
             "showBluetooth": true,
-            "showKbLayout": false,
+            "showKbLayout": true,
             "showLockStatus": true,
             "showMicrophone": false,
             "showNetwork": true,
@@ -118,10 +118,10 @@
         },
         "tray": {
             "background": false,
-            "compact": false,
+            "compact": true,
             "iconSubs": [
             ],
-            "recolour": false
+            "recolour": true
         },
         "workspaces": {
             "activeIndicator": true,
@@ -409,7 +409,7 @@
     "notifs": {
         "actionOnClick": false,
         "clearThreshold": 0.3,
-        "defaultExpireTimeout": 5000,
+        "defaultExpireTimeout": 2000,
         "expandThreshold": 20,
         "expire": true,
         "groupPreviewNum": 3
@@ -477,14 +477,15 @@
         "toasts": {
             "audioInputChanged": true,
             "audioOutputChanged": true,
-            "capsLockChanged": true,
+            "capsLockChanged": false,
             "chargingChanged": true,
             "configLoaded": true,
             "dndChanged": true,
+            "fullscreen": "important",
             "gameModeChanged": true,
             "kbLayoutChanged": true,
             "nowPlaying": false,
-            "numLockChanged": true,
+            "numLockChanged": false,
             "vpnChanged": true
         },
         "vpn": {
