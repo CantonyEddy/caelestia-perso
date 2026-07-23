@@ -29,6 +29,24 @@ link() {
   echo "  → $dst"
 }
 
+# copy_root : copie un fichier vers une cible root-owned (ex. /etc) via sudo.
+# Idempotent (ne recopie pas si identique), sauvegarde l'existant en .bak-<date>.
+# Ne touche JAMAIS aux fichiers non listés (ex. theme.conf de SDDM).
+copy_root() {
+  local src="$1" dst="$2"
+  if sudo cmp -s "$src" "$dst" 2>/dev/null; then
+    echo "  = $dst (déjà à jour)"
+    return
+  fi
+  sudo mkdir -p "$(dirname "$dst")"
+  if sudo test -e "$dst"; then
+    sudo cp -a "$dst" "$dst.bak-$STAMP"
+    echo "  ~ sauvegarde : $dst.bak-$STAMP"
+  fi
+  sudo install -m 0644 "$src" "$dst"
+  echo "  → $dst"
+}
+
 echo "Linking fichiers perso (version Lua) depuis $REPO :"
 link "$REPO/hypr/hypr-vars.lua"                 "$DEST/hypr-vars.lua"
 link "$REPO/hypr/hypr-user.lua"                 "$DEST/hypr-user.lua"
@@ -58,5 +76,18 @@ link "$REPO/config/spicetify/config-xpui.ini"        "$CFG/spicetify/config-xpui
 # Fichiers isolés à la racine de ~/.config (seedés manuellement, voir README)
 [[ -e "$REPO/config/starship.toml" ]] && link "$REPO/config/starship.toml" "$CFG/starship.toml"
 [[ -e "$REPO/config/mimeapps.list" ]] && link "$REPO/config/mimeapps.list" "$CFG/mimeapps.list"
+
+echo
+echo "Config SDDM (/etc/sddm.conf.d/, copie via sudo) :"
+# On COPIE (pas symlink) chaque drop-in vers /etc. theme.conf (esthétique) est
+# volontairement ignoré et jamais écrasé. Demande sudo une fois si besoin.
+if [[ -d "$REPO/config/sddm/conf.d" ]]; then
+  for f in "$REPO/config/sddm/conf.d/"*.conf; do
+    [[ -e "$f" ]] || continue
+    copy_root "$f" "/etc/sddm.conf.d/$(basename "$f")"
+  done
+else
+  echo "  (aucun fichier SDDM dans le repo, ignoré)"
+fi
 
 echo "Terminé. Recharge Hyprland avec : hyprctl reload"

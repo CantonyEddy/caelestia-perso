@@ -86,6 +86,28 @@ régénérés par Caelestia à chaque changement de scheme — ils sont exclus v
 Caelestia injecte ses couleurs *dans* le fichier : un changement de scheme peut
 donc y créer des diffs git (à ignorer ou committer selon l'envie).
 
+## Config SDDM (`config/sddm/conf.d/`)
+
+La config **fonctionnelle** de SDDM est versionnée en drop-ins (SDDM lit tous les
+`*.conf` de `/etc/sddm.conf.d/` par ordre alpha, fusionnés par section ; le
+préfixe numérique gère la priorité) :
+
+```
+config/sddm/conf.d/
+├── 10-general.conf     [General]   DisplayServer=wayland, Numlock=on
+├── 20-wayland.conf     [Wayland]   CompositorCommand=...
+├── 30-autologin.conf   [Autologin] (placeholder commenté)
+└── 40-users.conf       [Users]     (placeholder commenté)
+```
+
+Contrairement au reste, ces fichiers sont **copiés** (pas symlinkés) vers `/etc`
+via `sudo` par `install.sh` — `/etc` reste indépendant de ton home. `install.sh`
+te demandera ton mot de passe sudo. Après toute modif d'un drop-in, **relance
+`install.sh`** pour resynchroniser `/etc`.
+
+**L'esthétique reste hors repo** : `theme.conf` (`Current=nier-automata`) n'est
+jamais versionné ni écrasé par `install.sh`.
+
 ### Seeder les fichiers racine (`starship.toml`, `mimeapps.list`)
 
 Ils sont à la racine de `~/.config` (pas dans un sous-dossier), donc à copier une
