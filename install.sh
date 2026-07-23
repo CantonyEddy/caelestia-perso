@@ -58,23 +58,18 @@ link "$REPO/shell/monitors/HDMI-A-1/shell.json" "$DEST/monitors/HDMI-A-1/shell.j
 
 echo
 echo "Linking configs ~/.config perso depuis $REPO/config :"
-# Apps CLI/rice éditées à la main. On ne symlinke QUE mes fichiers ;
-# les thèmes générés par Caelestia (btop/themes, zed/themes, spicetify/Themes)
-# restent gérés par Caelestia et ne sont pas versionnés.
-link "$REPO/config/fish/config.fish"                 "$CFG/fish/config.fish"
-link "$REPO/config/fish/functions/fish_greeting.fish" "$CFG/fish/functions/fish_greeting.fish"
-link "$REPO/config/foot/foot.ini"                    "$CFG/foot/foot.ini"
+# On ne versionne QUE les apps que Caelestia NE gère PAS (pur perso).
+# Les apps gérées par Caelestia (foot, fish, fastfetch, micro, btop, starship...)
+# sont laissées à Caelestia : il les déploie et applique ses couleurs dynamiques
+# (scheme adapté au wallpaper). Les thèmes générés (zed/themes, spicetify/Themes)
+# ne sont pas versionnés non plus.
 link "$REPO/config/fuzzel/fuzzel.ini"                "$CFG/fuzzel/fuzzel.ini"
-link "$REPO/config/btop/btop.conf"                   "$CFG/btop/btop.conf"
 link "$REPO/config/cava/config"                      "$CFG/cava/config"
-link "$REPO/config/fastfetch/config.jsonc"           "$CFG/fastfetch/config.jsonc"
 link "$REPO/config/htop/htoprc"                      "$CFG/htop/htoprc"
-link "$REPO/config/micro/settings.json"              "$CFG/micro/settings.json"
 link "$REPO/config/zed/settings.json"                "$CFG/zed/settings.json"
 link "$REPO/config/zed/keymap.json"                  "$CFG/zed/keymap.json"
 link "$REPO/config/spicetify/config-xpui.ini"        "$CFG/spicetify/config-xpui.ini"
 # Fichiers isolés à la racine de ~/.config (seedés manuellement, voir README)
-[[ -e "$REPO/config/starship.toml" ]] && link "$REPO/config/starship.toml" "$CFG/starship.toml"
 [[ -e "$REPO/config/mimeapps.list" ]] && link "$REPO/config/mimeapps.list" "$CFG/mimeapps.list"
 
 echo
