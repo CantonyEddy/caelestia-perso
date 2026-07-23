@@ -2,3 +2,9 @@
 *.save
 *.conf.bak*
 *.zip
+
+# Thèmes/couleurs générés par Caelestia — gérés par Caelestia, pas versionnés
+config/btop/themes/
+config/zed/themes/
+config/spicetify/Themes/
+config/**/*.caelestia.*

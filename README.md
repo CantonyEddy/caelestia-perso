@@ -57,6 +57,46 @@ vides, si tu les actives avant de les remplir.
 - `hypr-vars.lua` = données : `return { browser = "firefox" }`.
 - `hypr-user.lua` et `user/*.lua` = code : `hl.config{...}`, `hl.bind(...)`.
 
+## Configs `~/.config` versionnées (dossier `config/`)
+
+En plus d'Hyprland, on versionne les configs CLI/rice éditées à la main. Elles
+vivent dans `config/` et sont symlinkées dans `~/.config/<app>/` par `install.sh`
+(même logique : sauvegarde `.bak-<date>` de l'existant, puis symlink, idempotent).
+
+```
+config/
+├── fish/config.fish + functions/fish_greeting.fish
+├── foot/foot.ini
+├── fuzzel/fuzzel.ini
+├── btop/btop.conf
+├── cava/config
+├── fastfetch/config.jsonc
+├── htop/htoprc
+├── micro/settings.json
+├── zed/settings.json + keymap.json
+├── spicetify/config-xpui.ini
+├── starship.toml        # à seeder (voir plus bas)
+└── mimeapps.list        # à seeder (voir plus bas)
+```
+
+**Règle : on ne versionne QUE mes fichiers, pas le généré par Caelestia.** Les
+thèmes de couleurs (`btop/themes/`, `zed/themes/`, `spicetify/Themes/`) sont
+régénérés par Caelestia à chaque changement de scheme — ils sont exclus via
+`.gitignore` et restent gérés par Caelestia. Pour `fuzzel`, `cava` et `htop`,
+Caelestia injecte ses couleurs *dans* le fichier : un changement de scheme peut
+donc y créer des diffs git (à ignorer ou committer selon l'envie).
+
+### Seeder les fichiers racine (`starship.toml`, `mimeapps.list`)
+
+Ils sont à la racine de `~/.config` (pas dans un sous-dossier), donc à copier une
+fois dans le repo avant de pouvoir les symlinker :
+
+```sh
+cp ~/.config/starship.toml ~/.local/share/caelestia-perso/config/starship.toml
+cp ~/.config/mimeapps.list  ~/.local/share/caelestia-perso/config/mimeapps.list
+~/.local/share/caelestia-perso/install.sh   # les détecte et les symlinke
+```
+
 ## Installation
 
 ```sh
