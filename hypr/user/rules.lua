@@ -8,5 +8,6 @@
 hl.window_rule({ match = { class = "steam" },                   workspace = "special:steam" })
 hl.window_rule({ match = { class = "obsidian" },                workspace = "special:obsidian" })
 hl.window_rule({ match = { class = "com\\.anthropic\\.Claude" }, workspace = "special:claude" })
+hl.window_rule({ match = { class = "org\\.mozilla\\.Thunderbird" }, workspace = "special:thunderbird" })
 
 return true

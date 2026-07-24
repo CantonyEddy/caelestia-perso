@@ -39,7 +39,7 @@ hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p
 -- Correspondance lettre -> F-key définie dans config/keyd/default.conf.
 hl.bind("code:191", hl.dsp.exec_cmd(appws .. " com.anthropic.Claude claude uwsm app -- claude-desktop")) -- HYPER + C : Claude (special ws)
 hl.bind("code:192", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
-hl.bind("code:193", hl.dsp.exec_cmd("uwsm app -- thunderbird"))    -- HYPER + T : Thunderbird
+hl.bind("code:193", hl.dsp.exec_cmd(appws .. " org.mozilla.Thunderbird thunderbird uwsm app -- thunderbird")) -- HYPER + T : Thunderbird (special ws)
 
 -- ============================================================
 -- Workspaces par KEYCODE (compatible AZERTY + QWERTY, tout clavier)
