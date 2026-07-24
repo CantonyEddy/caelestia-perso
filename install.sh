@@ -14,6 +14,18 @@ CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 DEST="$CFG/caelestia"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
+# Dépendances nécessaires aux configs versionnées, au format "binaire:paquet".
+# Édite librement. Les paquets AUR (ex. spicetify-cli) nécessitent paru/yay.
+DEPS=(
+  "keyd:keyd"                # requis : couche HYPER (Caps Lock)
+  "fuzzel:fuzzel"            # launcher
+  "cava:cava"               # visualiseur audio
+  "htop:htop"               # moniteur système
+  "zeditor:zed"             # éditeur Zed (le binaire s'appelle zeditor)
+  "spicetify:spicetify-cli" # thème Spotify (AUR)
+  "sddm:sddm"               # display manager
+)
+
 link() {
   local src="$1" dst="$2"
   mkdir -p "$(dirname "$dst")"
@@ -47,6 +59,38 @@ copy_root() {
   echo "  → $dst"
 }
 
+# check_deps : vérifie chaque binaire, installe les paquets manquants via paru/yay.
+# Non bloquant : un échec d'install n'interrompt pas le reste du script.
+check_deps() {
+  local helper="" missing=() pair bin pkg
+  if command -v paru >/dev/null 2>&1; then helper="paru"
+  elif command -v yay  >/dev/null 2>&1; then helper="yay"; fi
+  for pair in "${DEPS[@]}"; do
+    bin="${pair%%:*}"; pkg="${pair##*:}"
+    if command -v "$bin" >/dev/null 2>&1; then
+      echo "  ✓ $bin"
+    else
+      echo "  ✗ manquant : $bin (paquet $pkg)"
+      missing+=("$pkg")
+    fi
+  done
+  if (( ${#missing[@]} == 0 )); then
+    echo "  Toutes les dépendances sont présentes."
+    return
+  fi
+  if [[ -n "$helper" ]]; then
+    echo "  Installation via $helper : ${missing[*]}"
+    "$helper" -S --needed --noconfirm "${missing[@]}" \
+      || echo "  ! Échec d'installation de certaines dépendances — à installer à la main : ${missing[*]}"
+  else
+    echo "  ! Ni paru ni yay trouvé. Installe manuellement : ${missing[*]}"
+  fi
+}
+
+echo "Vérification des dépendances :"
+check_deps
+
+echo
 echo "Linking fichiers perso (version Lua) depuis $REPO :"
 link "$REPO/hypr/hypr-vars.lua"                 "$DEST/hypr-vars.lua"
 link "$REPO/hypr/hypr-user.lua"                 "$DEST/hypr-user.lua"
