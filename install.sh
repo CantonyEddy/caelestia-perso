@@ -143,5 +143,9 @@ if [[ -d "$REPO/config/sddm/conf.d" ]]; then
 else
   echo "  (aucun fichier SDDM dans le repo, ignoré)"
 fi
+# Config Hyprland du greeter (format hyprlang, PAS du INI) -> /etc/sddm/ .
+# Destination distincte car référencée par CompositorCommand de 20-wayland.conf.
+[[ -f "$REPO/config/sddm/hyprland-greeter.conf" ]] && \
+  copy_root "$REPO/config/sddm/hyprland-greeter.conf" "/etc/sddm/hyprland-greeter.conf"
 
 echo "Terminé. Recharge Hyprland avec : hyprctl reload"

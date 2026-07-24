@@ -125,12 +125,21 @@ La config **fonctionnelle** de SDDM est versionnée en drop-ins (SDDM lit tous l
 préfixe numérique gère la priorité) :
 
 ```
-config/sddm/conf.d/
-├── 10-general.conf     [General]   DisplayServer=wayland, Numlock=on
-├── 20-wayland.conf     [Wayland]   CompositorCommand=...
-├── 30-autologin.conf   [Autologin] (placeholder commenté)
-└── 40-users.conf       [Users]     (placeholder commenté)
+config/sddm/
+├── conf.d/                    (INI démon SDDM -> /etc/sddm.conf.d/)
+│   ├── 10-general.conf     [General]   DisplayServer=wayland, Numlock=on
+│   ├── 20-wayland.conf     [Wayland]   CompositorCommand=...
+│   ├── 30-autologin.conf   [Autologin] (placeholder commenté)
+│   └── 40-users.conf       [Users]     (placeholder commenté)
+└── hyprland-greeter.conf      (hyprlang -> /etc/sddm/)
 ```
+
+`hyprland-greeter.conf` est la config **Hyprland** (format hyprlang, pas INI) du
+compositeur lancé derrière l'écran de login — référencée par le
+`CompositorCommand` de `20-wayland.conf`. Elle règle notamment `kb_layout = fr`
+(clavier AZERTY au login). Elle est déployée vers `/etc/sddm/` (destination
+distincte de `/etc/sddm.conf.d/`, car format et consommateur différents : SDDM
+lit tout `sddm.conf.d/*.conf` comme du INI et planterait sur du hyprlang).
 
 Contrairement au reste, ces fichiers sont **copiés** (pas symlinkés) vers `/etc`
 via `sudo` (fonction `copy_root` d'`install.sh`) : `/etc` reste indépendant du
