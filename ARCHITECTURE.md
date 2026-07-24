@@ -170,14 +170,33 @@ lancée **en tant qu'utilisateur** par Hyprland, pas en root comme le ferait
 
 Mapping actuel (`keyd` lettre→F-key, `keybinds.lua` F-key→app) :
 
-| Combo       | keyd      | Action              |
-|-------------|-----------|---------------------|
-| HYPER + C   | c → F13   | Claude Desktop      |
-| HYPER + N   | n → F14   | zennotes            |
-| HYPER + T   | t → F15   | Thunderbird         |
+| Combo       | keyd      | Action                        |
+|-------------|-----------|-------------------------------|
+| HYPER + C   | c → F13   | Claude (special workspace)    |
+| HYPER + N   | n → F14   | zennotes                      |
+| HYPER + T   | t → F15   | Thunderbird                   |
 
 Prérequis machine : `paru -S keyd && sudo systemctl enable --now keyd`.
 `install.sh` déploie la config et fait `keyd reload` si keyd est présent.
+
+### Special workspaces "lance-ou-montre/cache"
+
+Certaines apps vivent dans un **special workspace** (scratchpad Hyprland) plutôt
+que dans les workspaces numérotés : Steam (`SUPER+G`), Obsidian (`SUPER+O`),
+Claude (`HYPER+C`). Deux ingrédients, comme le fait Caelestia pour sa musique :
+
+- une **window rule** (`user/rules.lua`) épingle l'app à son scratchpad par
+  classe : `hl.window_rule({ match = { class = "steam" }, workspace = "special:steam" })` ;
+- un **raccourci** appelle `scripts/app-ws.sh <class> <ws> <cmd de lancement>` qui,
+  via `hyprctl`, **lance l'app si elle est absente** (la rule l'envoie dans le
+  scratchpad, puis on l'affiche) ou **toggle** son special workspace si elle
+  tourne déjà. Un seul raccourci fait tout (contrairement au `caelestia toggle`
+  seul, qui ne lance pas l'app).
+
+Impact système : un special workspace ne coûte rien de plus qu'un workspace
+normal (même conteneur logique). Seule l'app consomme (sa RAM) ; masquée, elle
+n'est pas rendue (pas de coût GPU/compositing) et Hyprland cesse ses frame
+callbacks → CPU au repos.
 
 Réserve pour plus tard : des **submaps** Hyprland (leader + mode) pour de gros
 groupes d'actions, non nécessaires tant que la couche HYPER suffit.

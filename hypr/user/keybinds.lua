@@ -8,9 +8,12 @@
 --  * $kbCommunication / $kbMusic (anciennes variables) = Super+D / Super+M chez
 --    Caelestia. On les réassigne directement à nos apps.
 
--- Lancement d'apps sur SUPER (remplace app2unit -- <app>)
-hl.bind("SUPER + G", hl.dsp.exec_cmd("uwsm app -- steam"))
-hl.bind("SUPER + O", hl.dsp.exec_cmd("uwsm app -- obsidian"))
+-- Special workspaces perso : "lance si absente, sinon montre/cache".
+-- Le script gère la logique ; les window rules (user/rules.lua) épinglent
+-- chaque app dans son scratchpad special:<nom>.
+local appws = "bash $HOME/.local/share/caelestia-perso/scripts/app-ws.sh"
+hl.bind("SUPER + G", hl.dsp.exec_cmd(appws .. " steam steam uwsm app -- steam"))
+hl.bind("SUPER + O", hl.dsp.exec_cmd(appws .. " obsidian obsidian uwsm app -- obsidian"))
 
 -- Override des toggles Caelestia : musique (Super+M) et communication (Super+D)
 hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- vesktop")) -- ex-$kbCommunication
@@ -33,7 +36,7 @@ hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p
 --   F14 -> Linux 184 -> code:192
 --   F15 -> Linux 185 -> code:193
 -- Correspondance lettre -> F-key définie dans config/keyd/default.conf.
-hl.bind("code:191", hl.dsp.exec_cmd("uwsm app -- claude-desktop")) -- HYPER + C : Claude Desktop
+hl.bind("code:191", hl.dsp.exec_cmd(appws .. " com.anthropic.Claude claude uwsm app -- claude-desktop")) -- HYPER + C : Claude (special ws)
 hl.bind("code:192", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
 hl.bind("code:193", hl.dsp.exec_cmd("uwsm app -- thunderbird"))    -- HYPER + T : Thunderbird
 
