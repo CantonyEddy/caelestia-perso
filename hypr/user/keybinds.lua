@@ -8,10 +8,9 @@
 --  * $kbCommunication / $kbMusic (anciennes variables) = Super+D / Super+M chez
 --    Caelestia. On les réassigne directement à nos apps.
 
--- Lancement d'apps (remplace app2unit -- <app>)
+-- Lancement d'apps sur SUPER (remplace app2unit -- <app>)
 hl.bind("SUPER + G", hl.dsp.exec_cmd("uwsm app -- steam"))
 hl.bind("SUPER + O", hl.dsp.exec_cmd("uwsm app -- obsidian"))
-hl.bind("SUPER + I", hl.dsp.exec_cmd("uwsm app -- claude-desktop"))
 
 -- Override des toggles Caelestia : musique (Super+M) et communication (Super+D)
 hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- vesktop")) -- ex-$kbCommunication
@@ -19,6 +18,19 @@ hl.bind("SUPER + M", hl.dsp.exec_cmd("uwsm app -- spotify")) -- ex-$kbMusic
 
 -- Sélecteur d'emoji : tue une instance existante de fuzzel sinon lance caelestia emoji
 hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p"))
+
+-- ============================================================
+-- Couche HYPER (Caps Lock maintenu, via keyd)
+-- ============================================================
+-- keyd (config/keyd/default.conf) transforme Caps Lock en touche double rôle :
+--   * tap        -> Verr.Maj normal
+--   * maintenu+X -> émet une touche F13/F14/… qu'on lie ici.
+-- keyd ne peut pas créer un vrai modificateur "Hyper", donc on passe par des
+-- F-keys (jamais émises par un clavier physique -> zéro conflit).
+-- Correspondance lettre -> F-key définie dans config/keyd/default.conf.
+hl.bind("F13", hl.dsp.exec_cmd("uwsm app -- claude-desktop")) -- HYPER + C : Claude Desktop
+hl.bind("F14", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
+hl.bind("F15", hl.dsp.exec_cmd("uwsm app -- thunderbird"))    -- HYPER + T : Thunderbird
 
 -- ============================================================
 -- Workspaces par KEYCODE (compatible AZERTY + QWERTY, tout clavier)

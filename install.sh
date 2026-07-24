@@ -73,6 +73,21 @@ link "$REPO/config/spicetify/config-xpui.ini"        "$CFG/spicetify/config-xpui
 [[ -e "$REPO/config/mimeapps.list" ]] && link "$REPO/config/mimeapps.list" "$CFG/mimeapps.list"
 
 echo
+echo "Config keyd (/etc/keyd/, copie via sudo) :"
+# Couche HYPER (Caps Lock double rôle). Nécessite le paquet 'keyd' :
+#   paru -S keyd  &&  sudo systemctl enable --now keyd
+if [[ -f "$REPO/config/keyd/default.conf" ]]; then
+  copy_root "$REPO/config/keyd/default.conf" "/etc/keyd/default.conf"
+  if command -v keyd >/dev/null 2>&1; then
+    sudo keyd reload 2>/dev/null && echo "  ↻ keyd rechargé"
+  else
+    echo "  ! keyd non installé : 'paru -S keyd && sudo systemctl enable --now keyd'"
+  fi
+else
+  echo "  (aucun fichier keyd dans le repo, ignoré)"
+fi
+
+echo
 echo "Config SDDM (/etc/sddm.conf.d/, copie via sudo) :"
 # On COPIE (pas symlink) chaque drop-in vers /etc. theme.conf (esthétique) est
 # volontairement ignoré et jamais écrasé. Demande sudo une fois si besoin.

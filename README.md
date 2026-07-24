@@ -24,6 +24,13 @@ git clone git@github.com:CantonyEddy/caelestia-perso.git ~/.local/share/caelesti
 hyprctl reload
 ```
 
+Pour la couche de raccourcis **HYPER** (Caps Lock), installe keyd une fois :
+
+```sh
+paru -S keyd
+sudo systemctl enable --now keyd
+```
+
 `install.sh` sauvegarde tout fichier existant en `.bak-<date>` avant de créer le
 symlink, et ne refait rien si le lien est déjà bon (idempotent). Il demande le
 **mot de passe sudo** pour déployer la config SDDM vers `/etc/sddm.conf.d/`.

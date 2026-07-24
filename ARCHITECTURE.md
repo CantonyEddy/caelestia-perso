@@ -140,14 +140,50 @@ après toute modif d'un drop-in, **relancer `install.sh`** pour resynchroniser `
 **L'esthétique reste hors repo** : `theme.conf` (`Current=nier-automata`) n'est
 jamais versionné ni écrasé par `install.sh`.
 
+## Keybinds : couche HYPER via keyd
+
+Caelestia sature déjà `SUPER` (et `SUPER+SHIFT/CTRL/ALT`). Pour dégager un espace
+perso propre, on ajoute une couche **HYPER** pilotée par **Caps Lock**, sans
+casser Verr.Maj ni entrer en conflit avec les applis.
+
+Mécanisme (`config/keyd/default.conf`, déployé dans `/etc/keyd/` via `copy_root`) :
+
+- Caps Lock **tap** → Verr.Maj normal ;
+- Caps Lock **maintenu + lettre** → couche `[hyper]` de keyd.
+
+keyd n'a pas de vrai modificateur « Hyper » (ses modificateurs = Ctrl/Super/Alt/
+Shift/AltGr). L'approche composite (Hyper = tous les modificateurs) collisionne
+avec les combos `CTRL+SUPER+ALT` de Caelestia. On route donc `Caps + lettre` vers
+des **F-keys (F13+)** qu'aucun clavier physique n'émet — zéro conflit — et Hyprland
+lie ces F-keys aux actions (dans `hypr/user/keybinds.lua`). Bonus : l'action est
+lancée **en tant qu'utilisateur** par Hyprland, pas en root comme le ferait
+`command()` de keyd (ce qui casserait le lancement d'apps GUI Wayland).
+
+Mapping actuel (`keyd` lettre→F-key, `keybinds.lua` F-key→app) :
+
+| Combo       | keyd      | Action              |
+|-------------|-----------|---------------------|
+| HYPER + C   | c → F13   | Claude Desktop      |
+| HYPER + N   | n → F14   | zennotes            |
+| HYPER + T   | t → F15   | Thunderbird         |
+
+Prérequis machine : `paru -S keyd && sudo systemctl enable --now keyd`.
+`install.sh` déploie la config et fait `keyd reload` si keyd est présent.
+
+Réserve pour plus tard : des **submaps** Hyprland (leader + mode) pour de gros
+groupes d'actions, non nécessaires tant que la couche HYPER suffit.
+
+Les workspaces sont par ailleurs réécrits **par keycode** (`code:10..19`) pour
+rester universels AZERTY/QWERTY, en réutilisant `fn.wsaction` de Caelestia.
+
 ## Fonctionnement d'`install.sh`
 
 Idempotent. Pour chaque cible : symlink déjà correct → rien ; fichier/dossier réel
 → sauvegarde `.bak-<date>` puis symlink ; absent → symlink direct. Deux fonctions :
 
 - `link()` : symlink dans le home (Hyprland, configs `~/.config`).
-- `copy_root()` : copie via `sudo` vers `/etc` (SDDM), avec backup et idempotence
-  (`cmp` avant recopie).
+- `copy_root()` : copie via `sudo` vers `/etc` (SDDM et keyd), avec backup et
+  idempotence (`cmp` avant recopie).
 
 ## Mémo syntaxe Lua Hyprland
 
