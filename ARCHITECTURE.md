@@ -5,12 +5,12 @@ Doc technique du dépôt. Pour l'usage courant (installer, mettre à jour), voir
 
 ## Principe fondateur
 
-Superposer mes overrides **par-dessus** [caelestia-dots](https://github.com/caelestia-dots/caelestia)
-**sans jamais toucher à leur repo**. `install.sh` symlinke mes fichiers dans
+Superposer des overrides **par-dessus** [caelestia-dots](https://github.com/caelestia-dots/caelestia)
+**sans jamais toucher à leur repo**. `install.sh` symlinke les fichiers du dépôt dans
 `~/.config/caelestia/` (Hyprland Lua) et `~/.config/<app>/` (configs pur perso).
-Corollaire : **on ne versionne que MES modifs**, jamais un défaut Caelestia.
+Corollaire : **on ne versionne que les personnalisations**, jamais un défaut Caelestia.
 
-## Comment Caelestia charge mes fichiers Hyprland
+## Comment Caelestia charge les fichiers Hyprland
 
 Depuis la migration Hyprland 0.55 / Caelestia CLI v1.1.0, la config Hyprland est
 en **Lua** (plus en hyprlang `.conf`). D'après `~/.config/hypr/hyprland.lua` :
@@ -19,7 +19,7 @@ en **Lua** (plus en hyprlang `.conf`). D'après `~/.config/hypr/hyprland.lua` :
   TABLE de données (`return { ... }`), fusionnée dans leurs variables.
 - ligne ~76 : `require("hypr-user")` (tout à la fin) → **hypr-user.lua** est du
   VRAI code Lua Hyprland (`hl.config`, `hl.bind`…), chargé après tout le reste,
-  donc mes réglages gagnent.
+  donc ces réglages gagnent.
 
 `package.path` inclut `~/.config/caelestia/?.lua`, donc depuis hypr-user.lua,
 `require("user.input")` charge `~/.config/caelestia/user/input.lua` (le dossier
@@ -45,9 +45,9 @@ Les templates renvoient `return true` pour être chargeables sans erreur même v
 hypr/
 ├── hypr-vars.lua      # TABLE de données (return {...}) — overrides de variables
 ├── hypr-user.lua      # AIGUILLEUR Lua — require() les fichiers user/ utilisés
-└── user/              # mes overrides Hyprland en Lua, par thème
+└── user/              # les overrides Hyprland en Lua, par thème
     ├── input.lua      # clavier FR + touchpad (REMPLI, activé)
-    ├── keybinds.lua   # mes raccourcis (REMPLI, activé)
+    ├── keybinds.lua   # raccourcis (REMPLI, activé)
     ├── rules.lua      # (template, désactivé)
     └── …              # env, general, misc, animations, decoration, group,
                        #   execs, gestures, scrolling (templates désactivés)
@@ -86,7 +86,7 @@ par copie** (voir `manifest.toml`). Comparaison faite :
 
 Versionner un fichier géré par Caelestia créerait un conflit : au prochain
 `caelestia update`, Caelestia recopie son fichier vers `~/.config/<app>/` et
-écraserait notre symlink (voire écrirait sa version *dans* notre repo en suivant
+écraserait le symlink (voire écrirait sa version *dans* le dépôt en suivant
 le lien). On laisse donc Caelestia gérer ces apps entièrement.
 
 ### Les couleurs : c'est Caelestia qui gère
