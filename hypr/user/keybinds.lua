@@ -27,10 +27,15 @@ hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p
 --   * maintenu+X -> émet une touche F13/F14/… qu'on lie ici.
 -- keyd ne peut pas créer un vrai modificateur "Hyper", donc on passe par des
 -- F-keys (jamais émises par un clavier physique -> zéro conflit).
+-- On lie par KEYCODE (code:xkb = keycode Linux + 8) et non par nom, car les
+-- dispositions (fr…) ne mappent pas toujours un keysym pour F13-F24 :
+--   F13 -> Linux 183 -> code:191
+--   F14 -> Linux 184 -> code:192
+--   F15 -> Linux 185 -> code:193
 -- Correspondance lettre -> F-key définie dans config/keyd/default.conf.
-hl.bind("F13", hl.dsp.exec_cmd("uwsm app -- claude-desktop")) -- HYPER + C : Claude Desktop
-hl.bind("F14", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
-hl.bind("F15", hl.dsp.exec_cmd("uwsm app -- thunderbird"))    -- HYPER + T : Thunderbird
+hl.bind("code:191", hl.dsp.exec_cmd("uwsm app -- claude-desktop")) -- HYPER + C : Claude Desktop
+hl.bind("code:192", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
+hl.bind("code:193", hl.dsp.exec_cmd("uwsm app -- thunderbird"))    -- HYPER + T : Thunderbird
 
 -- ============================================================
 -- Workspaces par KEYCODE (compatible AZERTY + QWERTY, tout clavier)
