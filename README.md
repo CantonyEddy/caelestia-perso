@@ -1,11 +1,11 @@
 # caelestia-perso
 
-Mes personnalisations par-dessus [caelestia-dots](https://github.com/caelestia-dots/caelestia)
-(rice Hyprland / Quickshell sur Arch Linux), **sans jamais modifier leur dépôt**.
+Surcouche de personnalisations par-dessus [caelestia-dots](https://github.com/caelestia-dots/caelestia)
+(rice Hyprland / Quickshell sur Arch Linux), **sans modifier leur dépôt**.
 
-L'idée : Caelestia fournit la base ; ce dépôt ne contient que **mes** overrides
-(clavier, raccourcis, quelques apps) et les déploie par symlinks. Je peux ainsi
-mettre à jour Caelestia sans perdre mes réglages, et versionner ma config perso.
+Caelestia fournit la base ; ce dépôt ne contient que des **overrides** (clavier,
+raccourcis, quelques apps) déployés par symlinks. On peut ainsi mettre à jour
+Caelestia sans perdre ces réglages, et versionner la config.
 
 ## Ce que ça contient
 
@@ -23,8 +23,8 @@ wallpaper…) sont **laissées à Caelestia**. Détails dans [ARCHITECTURE.md](A
 Caps Lock a un **double rôle** (via keyd) :
 
 - **appui bref** → Verr.Maj normal ;
-- **maintenu + une touche** → raccourci de la couche « HYPER » (mes raccourcis perso,
-  sans conflit avec les applis).
+- **maintenu + une touche** → raccourci de la couche « HYPER » (raccourcis
+  additionnels, sans conflit avec les applis).
 
 ### Special workspaces : lancer / afficher / cacher
 
@@ -40,7 +40,7 @@ bureaux numérotés. **Un seul raccourci fait tout** : si l'app est fermée, ell
 | `HYPER+C` | Claude       |
 | `HYPER+T` | Thunderbird  |
 
-### Autres raccourcis perso
+### Autres raccourcis
 
 | Raccourci | Action                        |
 |-----------|-------------------------------|
@@ -54,10 +54,10 @@ compatibles AZERTY comme QWERTY).
 
 ### Ajouter un special workspace
 
-1. Récupère la **classe** de la fenêtre (app ouverte) : `hyprctl clients | grep -iE "class|title"`.
-2. Ajoute une règle dans `hypr/user/rules.lua` :
+1. Récupérer la **classe** de la fenêtre (app ouverte) : `hyprctl clients | grep -iE "class|title"`.
+2. Ajouter une règle dans `hypr/user/rules.lua` :
    `hl.window_rule({ match = { class = "<classe>" }, workspace = "special:<nom>" })`.
-3. Ajoute un raccourci dans `hypr/user/keybinds.lua` qui appelle le script
+3. Ajouter un raccourci dans `hypr/user/keybinds.lua` qui appelle le script
    `scripts/app-ws.sh <classe> <nom> <commande de lancement>`.
 4. `hyprctl reload`.
 
@@ -71,7 +71,7 @@ git clone git@github.com:CantonyEddy/caelestia-perso.git ~/.local/share/caelesti
 hyprctl reload
 ```
 
-Pour la couche de raccourcis **HYPER** (Caps Lock), installe keyd une fois :
+Pour la couche de raccourcis **HYPER** (Caps Lock), installer keyd une fois :
 
 ```sh
 paru -S keyd
@@ -91,16 +91,16 @@ git pull
 hyprctl reload        # recharge Hyprland
 ```
 
-Après un `caelestia update`, relancer `./install.sh` réapplique mes overrides si
+Après un `caelestia update`, relancer `./install.sh` réapplique les overrides si
 Caelestia a redéployé ses propres fichiers.
 
-## Modifier ma config
+## Modifier la config
 
-- **Hyprland** : édite les fichiers dans `hypr/` (voir le mémo Lua dans
+- **Hyprland** : éditer les fichiers dans `hypr/` (voir le mémo Lua dans
   [ARCHITECTURE.md](ARCHITECTURE.md)), puis `hyprctl reload`.
 - **Apps** (`config/…`) : les fichiers sont symlinkés, donc toute modif est
   immédiatement active.
-- **SDDM** (`config/sddm/conf.d/…`) : après modif, relance `./install.sh` (copie
+- **SDDM** (`config/sddm/conf.d/…`) : après modif, relancer `./install.sh` (copie
   vers `/etc`).
 
 ## Liens utiles
