@@ -183,15 +183,21 @@ Prérequis machine : `paru -S keyd && sudo systemctl enable --now keyd`.
 
 Certaines apps vivent dans un **special workspace** (scratchpad Hyprland) plutôt
 que dans les workspaces numérotés : Steam (`SUPER+G`), Obsidian (`SUPER+O`),
-Claude (`HYPER+C`). Deux ingrédients, comme le fait Caelestia pour sa musique :
+Claude (`HYPER+C`).
 
-- une **window rule** (`user/rules.lua`) épingle l'app à son scratchpad par
-  classe : `hl.window_rule({ match = { class = "steam" }, workspace = "special:steam" })` ;
-- un **raccourci** appelle `scripts/app-ws.sh <class> <ws> <cmd de lancement>` qui,
-  via `hyprctl`, **lance l'app si elle est absente** (la rule l'envoie dans le
-  scratchpad, puis on l'affiche) ou **toggle** son special workspace si elle
-  tourne déjà. Un seul raccourci fait tout (contrairement au `caelestia toggle`
-  seul, qui ne lance pas l'app).
+On utilise le mécanisme **natif de la CLI Caelestia** (et non `hyprctl dispatch
+togglespecialworkspace`, qui échoue ici car la config Hyprland est en Lua →
+`hyprctl dispatch` est évalué comme du Lua). Deux ingrédients :
+
+- **`cli.json`** (`toggles.<nom>`) déclare, par special workspace : `match` (la
+  classe de fenêtre), `command` (comment lancer l'app) et `move: true`. La commande
+  `caelestia toggle <nom>` lance l'app si absente, la déplace dans `special:<nom>`,
+  puis affiche/cache le workspace. Versionné et symlinké vers `~/.config/caelestia/cli.json`.
+- une **window rule** (`user/rules.lua`) épingle en plus l'app à son scratchpad par
+  classe (comme Caelestia le fait pour sa musique), pour un placement cohérent même
+  si l'app est lancée hors du toggle.
+
+Les raccourcis appellent simplement `caelestia toggle steam|obsidian|claude`.
 
 Impact système : un special workspace ne coûte rien de plus qu'un workspace
 normal (même conteneur logique). Seule l'app consomme (sa RAM) ; masquée, elle

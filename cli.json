@@ -1,0 +1,22 @@
+{
+  "toggles": {
+    "steam": {
+      "enable": true,
+      "match": [{ "class": "steam" }],
+      "command": ["uwsm", "app", "--", "steam"],
+      "move": true
+    },
+    "obsidian": {
+      "enable": true,
+      "match": [{ "class": "obsidian" }],
+      "command": ["uwsm", "app", "--", "obsidian"],
+      "move": true
+    },
+    "claude": {
+      "enable": true,
+      "match": [{ "class": "com.anthropic.Claude" }],
+      "command": ["uwsm", "app", "--", "claude-desktop"],
+      "move": true
+    }
+  }
+}
