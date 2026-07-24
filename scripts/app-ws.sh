@@ -16,7 +16,9 @@ class="$1"
 ws="$2"
 shift 2
 
-if hyprctl clients -j | grep -qF "\"class\": \"$class\""; then
+# Détection robuste : on retire tous les espaces du JSON avant de matcher,
+# car hyprctl -j peut sortir "class":"x" ou "class": "x" selon la version.
+if hyprctl clients -j | tr -d '[:space:]' | grep -qF "\"class\":\"$class\""; then
   hyprctl dispatch togglespecialworkspace "$ws"
 else
   "$@"
