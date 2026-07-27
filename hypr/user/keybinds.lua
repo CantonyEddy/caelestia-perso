@@ -53,7 +53,7 @@ hl.bind("code:193", hl.dsp.exec_cmd(appws .. " org.mozilla.Thunderbird thunderbi
 -- Chargé après leur keybinds.lua -> ces binds écrasent les leurs (même combo).
 
 local vars = require("variables")
-local fn   = require("hyprland.functions")
+local fn   = require("utils.functions") -- déplacé depuis hyprland.functions (update caelestia)
 
 for i = 1, 10 do
     local kc = "code:" .. (9 + i) -- i=1 -> code:10 (touche 1), i=10 -> code:19 (touche 0)
