@@ -79,9 +79,16 @@ paru -S keyd
 sudo systemctl enable --now keyd
 ```
 
-`install.sh` sauvegarde tout fichier existant en `.bak-<date>` avant de créer le
-symlink, et ne refait rien si le lien est déjà bon (idempotent). Il demande le
-**mot de passe sudo** pour déployer la config SDDM vers `/etc/sddm.conf.d/`.
+`install.sh` :
+
+- **installe les dépendances** manquantes (keyd, uwsm, fuzzel, cava, htop, zed,
+  spicetify, sddm) via `paru`/`yay` ;
+- **propose d'installer les applis des raccourcis** (Steam, Obsidian, Claude,
+  Thunderbird, Signal, Spotify, Discord, zennotes) via un petit **sélecteur** —
+  tu choisis tout, rien, ou une partie (par numéros) ;
+- **symlinke** les configs (sauvegarde de l'existant en `.bak-<date>`, idempotent) ;
+- demande le **mot de passe sudo** pour déployer keyd (`/etc/keyd/`) et SDDM
+  (`/etc/sddm.conf.d/`).
 
 ## Mise à jour
 

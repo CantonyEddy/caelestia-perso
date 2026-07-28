@@ -15,8 +15,9 @@ DEST="$CFG/caelestia"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 # Dépendances nécessaires aux configs versionnées, au format "binaire:paquet".
-# Édite librement. Les paquets AUR (ex. spicetify-cli) nécessitent paru/yay.
+# Installées automatiquement si manquantes. Les paquets AUR nécessitent paru/yay.
 DEPS=(
+  "uwsm:uwsm"               # requis : lancement des apps (uwsm app -- …)
   "keyd:keyd"                # requis : couche HYPER (Caps Lock)
   "fuzzel:fuzzel"            # launcher
   "cava:cava"               # visualiseur audio
@@ -24,6 +25,20 @@ DEPS=(
   "zeditor:zed"             # éditeur Zed (le binaire s'appelle zeditor)
   "spicetify:spicetify-cli" # thème Spotify (AUR)
   "sddm:sddm"               # display manager
+)
+
+# Applications lancées par les raccourcis (binaire:paquet). Proposées à
+# l'installation via un sélecteur (choix total ou partiel), pas imposées.
+# Édite/complète librement (noms de paquets AUR à ajuster selon ton helper).
+APPS=(
+  "steam:steam"                       # SUPER+G
+  "obsidian:obsidian"                 # SUPER+O
+  "claude-desktop:claude-desktop"     # HYPER+C (AUR)
+  "thunderbird:thunderbird"           # HYPER+T
+  "signal-desktop:signal-desktop"     # HYPER+S
+  "zennotes:zennotes"                 # HYPER+N (AUR)
+  "vesktop:vesktop"                   # SUPER+D (AUR : vesktop ou vesktop-bin)
+  "spotify:spotify"                   # SUPER+M (AUR)
 )
 
 link() {
@@ -87,6 +102,54 @@ check_deps() {
   fi
 }
 
+# select_apps : liste les applis des raccourcis non installées et propose de les
+# installer (toutes, aucune, ou une sélection). Interactif ; sauté hors terminal.
+select_apps() {
+  local helper="" pair bin pkg mbins=() mpkgs=() i ans n to=()
+  if command -v paru >/dev/null 2>&1; then helper="paru"
+  elif command -v yay  >/dev/null 2>&1; then helper="yay"; fi
+  for pair in "${APPS[@]}"; do
+    bin="${pair%%:*}"; pkg="${pair##*:}"
+    if ! command -v "$bin" >/dev/null 2>&1; then mbins+=("$bin"); mpkgs+=("$pkg"); fi
+  done
+  if (( ${#mpkgs[@]} == 0 )); then
+    echo "  Toutes les applis des raccourcis sont installées."
+    return
+  fi
+  if [[ ! -t 0 ]]; then
+    echo "  Applis manquantes (mode non interactif, à installer à la main) : ${mpkgs[*]}"
+    return
+  fi
+  echo "  Applis des raccourcis non installées :"
+  for i in "${!mbins[@]}"; do
+    printf "    %2d) %-16s (paquet %s)\n" "$((i+1))" "${mbins[$i]}" "${mpkgs[$i]}"
+  done
+  echo "  Lesquelles installer ? [a=toutes, n=aucune, ou n° séparés par des espaces]"
+  read -rp "  > " ans || ans="n"
+  case "$ans" in
+    a|A) to=("${mpkgs[@]}") ;;
+    n|N|"") echo "  Aucune installation."; return ;;
+    *)
+      for n in $ans; do
+        if [[ "$n" =~ ^[0-9]+$ ]] && (( n >= 1 && n <= ${#mpkgs[@]} )); then
+          to+=("${mpkgs[$((n-1))]}")
+        fi
+      done
+      ;;
+  esac
+  if (( ${#to[@]} == 0 )); then
+    echo "  Aucune sélection valide, rien d'installé."
+    return
+  fi
+  if [[ -n "$helper" ]]; then
+    echo "  Installation via $helper : ${to[*]}"
+    "$helper" -S --needed "${to[@]}" \
+      || echo "  ! Échec sur certaines applis — à installer à la main : ${to[*]}"
+  else
+    echo "  ! Ni paru ni yay trouvé. Installe manuellement : ${to[*]}"
+  fi
+}
+
 echo "Vérification des dépendances :"
 check_deps
 
@@ -147,5 +210,9 @@ fi
 # Destination distincte car référencée par CompositorCommand de 20-wayland.conf.
 [[ -f "$REPO/config/sddm/hyprland-greeter.conf" ]] && \
   copy_root "$REPO/config/sddm/hyprland-greeter.conf" "/etc/sddm/hyprland-greeter.conf"
+
+echo
+echo "Applications des raccourcis :"
+select_apps
 
 echo "Terminé. Recharge Hyprland avec : hyprctl reload"
