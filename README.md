@@ -39,6 +39,7 @@ bureaux numérotés. **Un seul raccourci fait tout** : si l'app est fermée, ell
 | `SUPER+O` | Obsidian     |
 | `HYPER+C` | Claude       |
 | `HYPER+T` | Thunderbird  |
+| `HYPER+S` | Signal       |
 
 ### Autres raccourcis
 

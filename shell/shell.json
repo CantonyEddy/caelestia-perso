@@ -48,9 +48,13 @@
         "wallpaperEnabled": true
     },
     "bar": {
+        "activeWindow": {
+            "compact": false,
+            "inverted": false
+        },
         "clock": {
-            "background": false,
-            "showDate": false,
+            "background": true,
+            "showDate": true,
             "showIcon": false
         },
         "dragThreshold": 20,
@@ -111,13 +115,13 @@
             "showBattery": true,
             "showBluetooth": true,
             "showKbLayout": true,
-            "showLockStatus": true,
-            "showMicrophone": false,
+            "showLockStatus": false,
+            "showMicrophone": true,
             "showNetwork": true,
             "showWifi": true
         },
         "tray": {
-            "background": false,
+            "background": true,
             "compact": true,
             "iconSubs": [
             ],
@@ -393,11 +397,11 @@
         "showOnHover": false,
         "specialPrefix": "@",
         "useFuzzy": {
-            "actions": false,
-            "apps": false,
-            "schemes": false,
-            "variants": false,
-            "wallpapers": false
+            "actions": true,
+            "apps": true,
+            "schemes": true,
+            "variants": true,
+            "wallpapers": true
         },
         "vimKeybinds": false
     },

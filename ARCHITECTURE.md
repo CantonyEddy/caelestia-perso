@@ -175,6 +175,7 @@ Mapping actuel (`keyd` lettre→F-key, `keybinds.lua` F-key→app) :
 | HYPER + C   | c → F13   | Claude (special workspace)    |
 | HYPER + N   | n → F14   | zennotes                      |
 | HYPER + T   | t → F15   | Thunderbird                   |
+| HYPER + S   | s → F16   | Signal (special workspace)    |
 
 Prérequis machine : `paru -S keyd && sudo systemctl enable --now keyd`.
 `install.sh` déploie la config et fait `keyd reload` si keyd est présent.
