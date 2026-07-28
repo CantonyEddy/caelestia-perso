@@ -4,7 +4,7 @@
 # Idempotent. Ne touche JAMAIS au repo caelestia lui-même.
 #
 # Pour chaque cible :
-#  - déjà le bon symlink    -> ne fait rien
+#  - déjà le bon symlink     -> ne fait rien
 #  - fichier/dossier réel    -> sauvegarde en .bak-AAAAMMJJ-HHMMSS puis symlink
 #  - absent                  -> symlink direct
 set -euo pipefail
@@ -17,14 +17,14 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 # Dépendances nécessaires aux configs versionnées, au format "binaire:paquet".
 # Installées automatiquement si manquantes. Les paquets AUR nécessitent paru/yay.
 DEPS=(
-  "uwsm:uwsm"               # requis : lancement des apps (uwsm app -- …)
-  "keyd:keyd"                # requis : couche HYPER (Caps Lock)
-  "fuzzel:fuzzel"            # launcher
-  "cava:cava"               # visualiseur audio
-  "htop:htop"               # moniteur système
-  "zeditor:zed"             # éditeur Zed (le binaire s'appelle zeditor)
-  "spicetify:spicetify-cli" # thème Spotify (AUR)
-  "sddm:sddm"               # display manager
+  "uwsm:uwsm"                         # requis : lancement des apps (uwsm app -- …)
+  "keyd:keyd"                         # requis : couche HYPER (Caps Lock)
+  "fuzzel:fuzzel"                     # launcher
+  "cava:cava"                         # visualiseur audio
+  "htop:htop"                         # moniteur système
+  "zeditor:zed"                       # éditeur Zed (le binaire s'appelle zeditor)
+  "spicetify:spicetify-cli"           # thème Spotify (AUR)
+  "sddm:sddm"                         # display manager
 )
 
 # Applications lancées par les raccourcis (binaire:paquet). Proposées à
