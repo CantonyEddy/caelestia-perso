@@ -13,7 +13,7 @@
 require("user.input")
 -- require("user.env")
 -- require("user.general")
--- require("user.misc")
+require("user.misc")
 -- require("user.animations")
 -- require("user.decoration")
 -- require("user.group")

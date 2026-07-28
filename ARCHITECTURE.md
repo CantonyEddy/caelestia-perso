@@ -202,6 +202,10 @@ Un seul raccourci fait donc tout : lancer si absente, montrer/cacher sinon.
 (Une piste plus intégrée existe — les toggles `cli.json` de la CLI Caelestia —
 mais son format exact n'a pas pu être fiabilisé, on s'en tient au script testé.)
 
+Quand la dernière fenêtre d'un special workspace se ferme, il se **referme tout
+seul** (au lieu de laisser un scratchpad vide affiché) grâce à l'option native
+`misc:close_special_on_empty` posée dans `user/misc.lua`.
+
 Impact système : un special workspace ne coûte rien de plus qu'un workspace
 normal (même conteneur logique). Seule l'app consomme (sa RAM) ; masquée, elle
 n'est pas rendue (pas de coût GPU/compositing) et Hyprland cesse ses frame
