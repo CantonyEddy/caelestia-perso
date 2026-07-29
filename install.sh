@@ -39,6 +39,7 @@ APPS=(
   "zennotes:zennotes"                 # HYPER+N (AUR)
   "vesktop:vesktop"                   # SUPER+D (AUR : vesktop ou vesktop-bin)
   "spotify:spotify"                   # SUPER+M (AUR)
+  "keepassxc:keepassxc"               # HYPER+A
 )
 
 link() {

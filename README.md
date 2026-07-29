@@ -40,6 +40,7 @@ bureaux numérotés. **Un seul raccourci fait tout** : si l'app est fermée, ell
 | `HYPER+C` | Claude       |
 | `HYPER+T` | Thunderbird  |
 | `HYPER+S` | Signal       |
+| `HYPER+A` | KeePassXC    |
 
 ### Autres raccourcis
 
