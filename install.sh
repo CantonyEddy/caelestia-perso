@@ -207,13 +207,10 @@ if [[ -d "$REPO/config/sddm/conf.d" ]]; then
 else
   echo "  (aucun fichier SDDM dans le repo, ignoré)"
 fi
-# Config Hyprland du greeter -> /etc/sddm/ (destination distincte car référencée
-# par le CompositorCommand de 20-wayland.conf). On déploie la version .lua
-# (utilisée) ET on conserve la .conf comme filet de secours (revert possible).
+# Config Hyprland du greeter (Lua) -> /etc/sddm/ (destination distincte car
+# référencée par le CompositorCommand de 20-wayland.conf).
 [[ -f "$REPO/config/sddm/hyprland-greeter.lua" ]] && \
   copy_root "$REPO/config/sddm/hyprland-greeter.lua" "/etc/sddm/hyprland-greeter.lua"
-[[ -f "$REPO/config/sddm/hyprland-greeter.conf" ]] && \
-  copy_root "$REPO/config/sddm/hyprland-greeter.conf" "/etc/sddm/hyprland-greeter.conf"
 
 echo
 echo "Applications des raccourcis :"
