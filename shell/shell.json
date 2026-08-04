@@ -98,7 +98,7 @@
         ],
         "excludedScreens": [
         ],
-        "persistent": false,
+        "persistent": true,
         "popouts": {
             "activeWindow": true,
             "statusIcons": true,
@@ -140,6 +140,10 @@
             "showWindowsOnSpecialWorkspaces": true,
             "shown": 5,
             "specialWorkspaceIcons": [
+                {
+                    "icon": "smart_toy",
+                    "name": "claude"
+                }
             ]
         }
     },
