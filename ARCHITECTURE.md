@@ -192,8 +192,11 @@ togglespecialworkspace`, qui échoue ici : la config Hyprland est en Lua →
 `hyprctl dispatch` est évalué comme du Lua). Mais `caelestia toggle` seul ne
 **lance pas** l'app absente. Trois ingrédients :
 
-- une **window rule** (`user/rules.lua`) épingle l'app à son scratchpad par classe :
-  `hl.window_rule({ match = { class = "steam" }, workspace = "special:steam" })` ;
+- des **window rules par tags** (`user/rules.lua`) épinglent l'app à son scratchpad.
+  Depuis la réécriture des window rules (Hyprland 0.53+), l'assignation directe
+  `workspace = "special:x"` par classe ne marche plus ; on tague donc la fenêtre
+  par classe (`tag = "+ws_steam"`) puis, **après tous les taguages**, on envoie les
+  fenêtres taguées vers leur workspace (`match = { tag = "ws_steam" }, workspace = "special:steam"`) — même schéma que Caelestia ;
 - le script **`scripts/app-ws.sh <class> <ws> <cmd>`** : si l'app tourne →
   `caelestia toggle <ws>` (montre/cache) ; sinon → il la lance (la rule la range
   dans `special:<ws>`) puis `caelestia toggle <ws>` pour l'afficher ;

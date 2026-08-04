@@ -1,15 +1,30 @@
 -- user/rules.lua — règles fenêtres perso
 -- Doc : https://wiki.hypr.land/Configuring/Window-Rules/
--- API alignée sur celle de Caelestia : hl.window_rule({ match = {...}, ... }).
+--
+-- Depuis la réécriture des window rules (Hyprland 0.53+, déc. 2025), assigner
+-- directement `workspace = "special:x"` par classe ne fonctionne plus de façon
+-- fiable. On passe donc par un système de TAGS en deux temps, comme Caelestia :
+--   (1) on tague chaque fenêtre par sa classe ;
+--   (2) APRÈS tous les taguages, on envoie les fenêtres taguées vers leur
+--       special workspace. L'ordre (défs de tags après les taguages) est imposé
+--       par Hyprland.
 -- Le champ `class` est traité comme une regex (d'où l'échappement des points).
 
--- Special workspaces perso : chaque app est épinglée à son scratchpad.
--- Le toggle "lance-ou-montre/cache" est géré par scripts/app-ws.sh (voir keybinds.lua).
-hl.window_rule({ match = { class = "steam" },                   workspace = "special:steam" })
-hl.window_rule({ match = { class = "obsidian" },                workspace = "special:obsidian" })
-hl.window_rule({ match = { class = "com\\.anthropic\\.Claude" }, workspace = "special:claude" })
-hl.window_rule({ match = { class = "org\\.mozilla\\.Thunderbird" }, workspace = "special:thunderbird" })
-hl.window_rule({ match = { class = "signal" }, workspace = "special:signal" })
-hl.window_rule({ match = { class = "org\\.keepassxc\\.KeePassXC" }, workspace = "special:keepassxc" })
+-- (1) Taguer chaque app par sa classe ("+" ajoute le tag)
+hl.window_rule({ match = { class = "steam" },                      tag = "+ws_steam" })
+hl.window_rule({ match = { class = "obsidian" },                   tag = "+ws_obsidian" })
+hl.window_rule({ match = { class = "com\\.anthropic\\.Claude" },    tag = "+ws_claude" })
+hl.window_rule({ match = { class = "org\\.mozilla\\.Thunderbird" }, tag = "+ws_thunderbird" })
+hl.window_rule({ match = { class = "signal" },                     tag = "+ws_signal" })
+hl.window_rule({ match = { class = "org\\.keepassxc\\.KeePassXC" }, tag = "+ws_keepassxc" })
+
+-- (2) Envoyer les fenêtres taguées vers leur special workspace
+--     (DOIT venir après tous les taguages ci-dessus)
+hl.window_rule({ match = { tag = "ws_steam" },       workspace = "special:steam" })
+hl.window_rule({ match = { tag = "ws_obsidian" },    workspace = "special:obsidian" })
+hl.window_rule({ match = { tag = "ws_claude" },      workspace = "special:claude" })
+hl.window_rule({ match = { tag = "ws_thunderbird" }, workspace = "special:thunderbird" })
+hl.window_rule({ match = { tag = "ws_signal" },      workspace = "special:signal" })
+hl.window_rule({ match = { tag = "ws_keepassxc" },   workspace = "special:keepassxc" })
 
 return true
