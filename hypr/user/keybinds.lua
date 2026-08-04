@@ -14,7 +14,7 @@
 -- avec le dispatch Lua de Caelestia, contrairement à `hyprctl dispatch`).
 local appws = "bash $HOME/.local/share/caelestia-perso/scripts/app-ws.sh"
 hl.bind("SUPER + G", hl.dsp.exec_cmd(appws .. " steam steam uwsm app -- steam"))
-hl.bind("SUPER + O", hl.dsp.exec_cmd(appws .. " obsidian obsidian uwsm app -- obsidian"))
+hl.bind("SUPER + O", hl.dsp.exec_cmd(appws .. " md.Obsidian obsidian uwsm app -- obsidian"))
 
 -- Override des toggles Caelestia : musique (Super+M) et communication (Super+D)
 hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- vesktop")) -- ex-$kbCommunication

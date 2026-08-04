@@ -12,7 +12,7 @@
 
 -- (1) Taguer chaque app par sa classe ("+" ajoute le tag)
 hl.window_rule({ match = { class = "steam" },                      tag = "+ws_steam" })
-hl.window_rule({ match = { class = "obsidian" },                   tag = "+ws_obsidian" })
+hl.window_rule({ match = { class = "md\\.Obsidian" },              tag = "+ws_obsidian" })
 hl.window_rule({ match = { class = "com\\.anthropic\\.Claude" },    tag = "+ws_claude" })
 hl.window_rule({ match = { class = "org\\.mozilla\\.Thunderbird" }, tag = "+ws_thunderbird" })
 hl.window_rule({ match = { class = "signal" },                     tag = "+ws_signal" })
