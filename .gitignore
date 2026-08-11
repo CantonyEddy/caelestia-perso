@@ -7,3 +7,7 @@
 config/zed/themes/
 config/spicetify/Themes/
 config/**/*.caelestia.*
+
+# Env de session MACHINE-LOCALE (chemins PCI GPU, etc.) — propre à chaque
+# machine, ne doit PAS être poussé aux autres utilisateurs du repo.
+config/env.d/*.conf

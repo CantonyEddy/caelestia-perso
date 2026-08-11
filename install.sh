@@ -180,6 +180,15 @@ link "$REPO/config/spicetify/config-xpui.ini"        "$CFG/spicetify/config-xpui
 # Fichiers isolés à la racine de ~/.config (seedés manuellement, voir README)
 [[ -e "$REPO/config/mimeapps.list" ]] && link "$REPO/config/mimeapps.list" "$CFG/mimeapps.list"
 
+# Env de session machine-locale (~/.config/environment.d/), gitignoré : symlinké
+# seulement si présent (donc absent chez les autres utilisateurs du repo).
+if [[ -d "$REPO/config/env.d" ]]; then
+  for f in "$REPO/config/env.d/"*.conf; do
+    [[ -e "$f" ]] || continue
+    link "$f" "$CFG/environment.d/$(basename "$f")"
+  done
+fi
+
 echo
 echo "Config keyd (/etc/keyd/, copie via sudo) :"
 # Couche HYPER (Caps Lock double rôle). Nécessite le paquet 'keyd' :
