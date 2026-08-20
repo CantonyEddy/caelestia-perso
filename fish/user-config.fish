@@ -8,7 +8,7 @@ alias lg "lazygit"
 alias h "tldr"
 alias d "gdu"
 alias i "paru -S"
-alias u "paru -Syu"
+alias u "caelestia update"
 alias v "nvim"
 
 # --- Variables d'environnement ---
