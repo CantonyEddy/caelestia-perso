@@ -103,6 +103,33 @@ hyprctl reload        # recharge Hyprland
 Après un `caelestia update`, relancer `./install.sh` réapplique les overrides si
 Caelestia a redéployé ses propres fichiers.
 
+## Désinstallation
+
+`uninstall.sh` fait l'inverse d'`install.sh` : il retire les symlinks perso et les
+fichiers déployés dans `/etc`. Il **ne restaure pas** les `.bak` — Caelestia
+régénère ses défauts au prochain reload.
+
+```sh
+cd ~/.local/share/caelestia-perso
+./uninstall.sh --dry-run   # aperçu, ne touche à rien
+./uninstall.sh             # retire les symlinks ~/.config + keyd
+./uninstall.sh --sddm      # inclut aussi la config SDDM /etc
+hyprctl reload
+```
+
+Sûreté intégrée :
+
+- un symlink n'est retiré **que** s'il pointe vers ce dépôt (un fichier réel ou un
+  lien externe est laissé intact) ;
+- un fichier `/etc` (keyd, SDDM) n'est supprimé **que** s'il est identique à la
+  version du dépôt, avec sauvegarde `.bak-<date>` avant retrait ;
+- **SDDM est exclu par défaut** (chemin de login critique) — il faut le flag
+  `--sddm`. Le retirer peut faire disparaître l'écran de login au boot : garde un
+  TTY prêt (`Ctrl+Alt+F3`) si tu l'utilises.
+
+Les `.bak-<date>` laissés par `install.sh` ne sont pas supprimés automatiquement :
+à nettoyer à la main une fois que tout est vérifié.
+
 ## Modifier la config
 
 - **Hyprland** : éditer les fichiers dans `hypr/` (voir le mémo Lua dans

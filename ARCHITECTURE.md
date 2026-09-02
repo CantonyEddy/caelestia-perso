@@ -230,6 +230,23 @@ Idempotent. Pour chaque cible : symlink déjà correct → rien ; fichier/dossie
 - `copy_root()` : copie via `sudo` vers `/etc` (SDDM et keyd), avec backup et
   idempotence (`cmp` avant recopie).
 
+## Fonctionnement d'`uninstall.sh`
+
+Miroir d'`install.sh`, sans restaurer les `.bak` (Caelestia régénère ses défauts).
+Deux fonctions symétriques des précédentes :
+
+- `unlink_repo()` : retire une cible **uniquement** si c'est un symlink dont la
+  résolution (`readlink -f`) tombe dans ce dépôt — un fichier réel ou un lien
+  externe est laissé intact (protège contre une suppression accidentelle).
+- `remove_root_if_ours()` : supprime un fichier `/etc` **seulement** s'il est
+  identique à la version du dépôt (`cmp`, donc bien celui posé par `install.sh`),
+  après une sauvegarde `.bak-<date>`. S'il diffère, il est laissé et signalé.
+
+Le retrait SDDM est **opt-in** (`--sddm`) car il touche au chemin de boot/login :
+retirer `/etc/sddm/hyprland-greeter.conf` et les drop-ins `/etc/sddm.conf.d/` peut
+supprimer l'écran de login. Un `--dry-run` liste ce qui serait fait sans rien
+modifier. Les `.bak-<date>` d'`install.sh` ne sont pas nettoyés (choix manuel).
+
 ## Mémo syntaxe Lua Hyprland
 
 ```lua
