@@ -20,27 +20,26 @@ wallpaper…) sont **laissées à Caelestia**. Détails dans [ARCHITECTURE.md](A
 
 ## Prompt Starship
 
-Le prompt de fish est un prompt **Starship** perso, en « capsules » arrondies, dont
-les couleurs sont **celles de caelestia** et **suivent ton fond d'écran** en direct.
-On ne touche pas au `starship.toml` géré par caelestia : le nôtre est branché via la
-variable `STARSHIP_CONFIG` (dans `fish/user-config.fish`).
+Le prompt de fish est un prompt **Starship** perso, en « capsules » arrondies. Ses
+couleurs sont des **indices de palette ANSI** que caelestia remappe en direct :
+le prompt (ligne active **et** scrollback) se recolore tout seul au changement de
+scheme, comme le reste du terminal. On ne touche pas au `starship.toml` géré par
+caelestia : le nôtre est branché via `STARSHIP_CONFIG` (dans `fish/user-config.fish`).
 
 - gauche : `OS › dossier › durée` (en ms), puis `❯` en 2ᵉ ligne ;
 - une ligne double `═` relie les deux groupes ;
 - droite : `status › (git) › heure` — le code de sortie de la dernière commande
   (✓ / ✗+code) est l'ancre toujours présente, git n'apparaît que dans un dépôt.
 
-Le style est produit par `scripts/gen-starship.py`, qui génère **deux** fichiers :
-un **template** (`config/caelestia-templates/starship.toml`, que caelestia rend vers
-`~/.local/state/caelestia/theme/starship.toml` à chaque changement de scheme) et un
-**fallback** statique (`config/starship.toml`) au cas où le rendu n'existe pas encore.
+Chaque bloc a sa couleur (pas de dégradé d'une seule teinte : la palette ANSI n'a
+que des couleurs distinctes — c'est le compromis pour recolorer aussi le scrollback).
 
-Pour changer le style (glyphes, dégradé, ancre, disposition), édite
-`scripts/gen-starship.py` puis régénère (fish) :
+Le style est produit par `scripts/gen-starship.py` (outil de build) qui écrit
+`config/starship.toml`. Pour le changer (glyphes, couleurs, disposition), édite le
+script puis régénère (fish) :
 
 ```fish
-python3 ~/.local/share/caelestia-perso/scripts/gen-starship.py  # régénère les 2 fichiers
-caelestia scheme set -n (caelestia scheme get -n)               # re-rend le template
+python3 ~/.local/share/caelestia-perso/scripts/gen-starship.py  # régénère config/starship.toml
 exec fish                                                        # recharge le prompt
 ```
 
@@ -120,6 +119,16 @@ sudo systemctl enable --now keyd
 - **symlinke** les configs (sauvegarde de l'existant en `.bak-<date>`, idempotent) ;
 - demande le **mot de passe sudo** pour déployer keyd (`/etc/keyd/`) et SDDM
   (`/etc/sddm.conf.d/`).
+
+## Wallpapers
+
+Les images **ne sont pas incluses** dans ce dépôt. Le picker caelestia les lit
+dans **`~/Pictures/Wallpapers`** (chemin portable dans `shell/shell.json`,
+développé par utilisateur — pas de `/home/<toi>` en dur, pour que la conf marche
+chez tout le monde). Mets-y tes fonds d'écran (un sous-dossier est OK, le scan est
+récursif), puis change de wallpaper via le launcher (`>wallpaper`) ou
+`caelestia wallpaper`. Après avoir modifié `shell.json`, redémarre le shell :
+`caelestia shell -k; and sleep 1; and caelestia shell -d` (ou `Ctrl+Super+Alt+R`).
 
 ## Mise à jour
 

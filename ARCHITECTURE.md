@@ -105,6 +105,16 @@ Caelestia visibles dans `fuzzel.ini` / `cava/config` ont été posées **à la m
 une fois (Caelestia n'a pas de template pour ces apps) : elles ne bougent donc
 pas toutes seules et peuvent être versionnées sans risque.
 
+### Portabilité (conf partagée) : pas de chemin home en dur
+
+Ce dépôt est **partagé** : tout fichier versionné doit éviter les chemins absolus
+`/home/<toi>/…` (l'utilisateur n'existe pas chez les autres). Ex. corrigé :
+`shell/shell.json` → `paths.wallpaperDir = "~/Pictures/Wallpapers"` (le shell
+développe le `~` par utilisateur), au lieu de `/home/ryu/Pictures/Wallpapers` qui
+cassait le picker chez les autres. Préférer `~`, `$HOME`, ou un chemin relatif
+partout où c'est possible. **Reste à traiter** : `config/spicetify/config-xpui.ini`
+(`prefs_path = /home/ryu/…`, spicetify n'expanse pas forcément `~`).
+
 ### Fichiers isolés à la racine de `~/.config`
 
 `mimeapps.list` (associations d'apps par défaut) est pur perso et versionnable ;
@@ -119,102 +129,54 @@ cp ~/.config/mimeapps.list ~/.local/share/caelestia-perso/config/mimeapps.list
 ~/.local/share/caelestia-perso/install.sh   # détecte et symlinke
 ```
 
-## Prompt Starship perso (propagation native caelestia)
+## Prompt Starship perso (couleurs ANSI, recolorées en direct)
 
-Caelestia gère son propre `~/.config/starship.toml` (composant `starship` de son
-`manifest.toml`, déployé **par copie**). Le symlinker créerait le conflit
-habituel (recopié/écrasé à chaque `caelestia update`, voire écriture *à travers*
-le lien jusque dans ce repo). On contourne **sans jamais toucher** à leur fichier :
+Caelestia gère son propre `~/.config/starship.toml` (composant `starship`, déployé
+par copie). Le symlinker créerait un conflit (écrasé à chaque `caelestia update`).
+On contourne sans toucher à leur fichier :
 
-- **`STARSHIP_CONFIG`** — Starship lit cette variable d'env pour choisir son
-  fichier (défaut : `~/.config/starship.toml`). On la pointe ailleurs depuis
-  `fish/user-config.fish` (hook officiel Caelestia). Caelestia garde son fichier,
-  nous le nôtre : zéro croisement.
+- **`STARSHIP_CONFIG`** — Starship lit cette variable pour choisir son fichier. On
+  la pointe sur `config/starship.toml` depuis `fish/user-config.fish`. Caelestia
+  garde le sien, nous le nôtre : zéro croisement.
 
-- **Couleurs = propagation NATIVE caelestia (moteur de templates).** La CLI
-  (`caelestia/utils/theme.py` → `apply_user_templates`) rend **tout** fichier de
-  `~/.config/caelestia/templates/` vers `~/.local/state/caelestia/theme/<nom>` à
-  **chaque changement de scheme**, en remplaçant les `{{ role.form }}` par la
-  vraie couleur (`role` = rôle Material You de `scheme.json` ; `form` = `hex`,
-  `rgb`, `hsl`…). On dépose donc un template `starship.toml` : les couleurs sont
-  **littéralement celles de caelestia**. Nuance importante : notre prompt utilise
-  des **hex en dur** (truecolor), pas la palette ANSI. Au changement de scheme, il
-  ne se recolore donc PAS en direct comme le reste du terminal (que caelestia
-  remappe via la palette ANSI, OSC 4) : la ligne déjà affichée reste figée, et le
-  prompt prend les nouvelles couleurs **au prochain affichage** (Entrée) — car
-  Starship relit alors le fichier que caelestia vient de régénérer. C'est le prix
-  du **vrai dégradé tonal** (les noms ANSI se recoloreraient en direct mais ne
-  donnent que 16 couleurs discrètes). Le dégradé bord(foncé)→centre(clair) utilise
-  des rôles tonals réels du primary :
-  `onPrimary` → `primaryContainer` → `primary` (aucune interpolation). **Piège
-  vérifié** : n'utiliser que des rôles M3 *de base* (présents dans le scheme
-  DYNAMIQUE) — les rôles `*Fixed` n'existent que dans le scheme statique, donc
-  leur placeholder reste non remplacé → couleur invalide → segment sans fond.
+- **Couleurs = indices de palette ANSI** (`16`/`17`/`18` = primary/secondary/
+  tertiary ; `0` = term0 sombre pour le texte ; `1` = red). Caelestia **remappe la
+  palette en direct** (séquences OSC 4 — voir « couleurs terminal » plus haut).
+  Donc le prompt — ligne active **et scrollback** — se recolore tout seul au
+  changement de scheme, comme le reste du terminal. **Config STATIQUE** : aucune
+  dynamique à gérer côté prompt (ni template, ni `postHook`). Contrepartie : pas de
+  dégradé tonal d'une seule teinte (la palette n'a que des couleurs distinctes) —
+  chaque bloc a SA couleur (choix assumé).
 
-- **Style « capsules powerline »** au lieu du texte coloré par défaut : segments
-  arrondis (demi-cercles Nerd Font ``/``, fournis par JetBrains Mono
-  Nerd) avec fond coloré.
-  **Capsules connectées** (segments collés ; seuls les bouts extérieurs sont
-  arrondis, transition arrondie powerline entre segments). Dégradé bord→centre.
-  - gauche : `( OS › dossier › durée )` puis `$fill` (espace extensible) ; `❯`
-    en ligne 2. **Tout est sur la ligne 1** grâce à `$fill` — on n'utilise PAS
-    `right_format`, qui s'alignerait sur la ligne du `❯`.
-  - un connecteur **`$fill`** (ligne double `═`, couleur c2) relie visuellement le
-    groupe gauche et le groupe droit (les bouts des capsules restent inchangés).
-  - droite : `(status(gitstatus(branch+logo(heure)` en dépôt, `(status(heure)`
-    hors dépôt. Chaque jonction est UN demi-cercle `(` (le segment courant « mord »
-    dans le précédent : CAP_L, sa couleur SUR le fond du précédent).
-    **Le module `status` (code de sortie) est l'ancre permanente** : `disabled =
-    false` + `success_symbol` → il s'affiche AUSSI en cas de succès (✓), pas
-    seulement sur erreur (✗ + code). Comme il a la MÊME couleur que la branche
-    (c2), l'heure porte son `(` de jonction en **statique** (bg c2), ce qui marche
-    que le voisin de gauche soit la branche (dépôt) ou le status (hors dépôt) —
-    donc tout est statique, **sans module `custom` conditionnel** (essayé, ne se
-    rendait pas de façon fiable). Pour changer l'ancre (mémoire, hostname…), garder
-    la couleur c2 ; si le module choisi n'est pas naturellement permanent, le forcer
-    à s'afficher toujours (comme `status` via `success_symbol`).
-  - durée de commande en **ms** (`cmd_duration` : `min_time = 0`,
-    `show_milliseconds = true`).
+  Note historique : une version antérieure utilisait des **hex** issus des rôles
+  Material You (moteur de templates caelestia + un `postHook` SIGWINCH pour forcer
+  le redraw) → vrai dégradé tonal, mais le scrollback ne se recolorait pas (hex
+  truecolor = pixels figés). On a tranché pour l'ANSI (recolore partout, plus simple).
 
-### Chaîne (build + runtime)
+- **Style « capsules »** : segments arrondis (demi-cercles Nerd Font `CAP_L`/`CAP_R`,
+  JetBrains Mono Nerd), chaque bloc sur un fond de couleur ANSI, texte sombre (`0`).
+  - gauche : `OS > dossier > durée` (capsule connectée) ; `$fill` (ligne double `=`)
+    relie les 2 groupes ; `❯` en ligne 2 (tout le reste sur la ligne 1 via `$fill`,
+    pas `right_format`). Durée en **ms** (`min_time = 0`, `show_milliseconds = true`).
+  - droite : `(status(git_status(branch+logo(heure)` en dépôt, `(status(heure)`
+    sinon. Chaque jonction est un demi-cercle `(` (le segment courant « mord » dans
+    le précédent : CAP_L, sa couleur sur le fond du précédent). `status` (code de
+    sortie, ✓ / ✗+code) est l'**ancre permanente** (`disabled = false` +
+    `success_symbol` → visible aussi en succès). Il a la même couleur que la branche
+    → l'heure porte son `(` de jonction en **statique**, valable que le voisin soit
+    la branche (dépôt) ou le status (hors dépôt). Aucun module conditionnel.
 
-```
-scripts/gen-starship.py   (OUTIL DE BUILD — 1 layout → 2 fichiers)
-   ├─▶ config/caelestia-templates/starship.toml   TEMPLATE ({{ role.hex }})
-   │        │  symlink par install.sh
-   │        ▼
-   │   ~/.config/caelestia/templates/starship.toml
-   │        │  rendu par caelestia à chaque scheme (apply_user_templates)
-   │        ▼
-   │   ~/.local/state/caelestia/theme/starship.toml   ◀── STARSHIP_CONFIG
-   │
-   └─▶ config/starship.toml   FALLBACK statique (couleurs par défaut figées)
-            ▲  STARSHIP_CONFIG si le rendu n'existe pas encore
-       fish/user-config.fish
-```
+### Build / runtime
 
-- `gen-starship.py` n'est **pas** exécuté au runtime : c'est un outil de dev qui
-  produit les deux fichiers depuis une seule définition (`SYMBOLS`, `ROLES`,
-  layout). On le relance à la main après avoir modifié le style, puis on commit.
-- `user-config.fish` (déjà symlinké) fait juste : `STARSHIP_CONFIG` = fichier
-  rendu par caelestia s'il existe, sinon `config/starship.toml` (fallback).
-- `install.sh` symlinke le template puis **force un premier rendu** via
-  `caelestia scheme set -n (caelestia scheme get -n)` (sinon le fichier rendu
-  n'apparaît qu'au prochain changement de scheme).
-- Le fichier rendu est hors repo (`~/.local/state`) → rien à `.gitignore`. Le
-  dossier `config/caelestia-templates/` **est** versionné (c'est notre template).
-
-### Personnaliser le style
-
-Tout est dans `scripts/gen-starship.py` (en tête) : `ROLES` (quels rôles
-caelestia pour le dégradé), `SYMBOLS` (glyphes OS/dossier/git/heure/prompt),
-`CAP_L`/`CAP_R` (demi-cercles), `DEFAULT_HEX` (palette du fallback). Après
-édition :
+`scripts/gen-starship.py` est un **outil de build** (pas runtime) : il écrit
+`config/starship.toml` depuis une seule définition (`SYMBOLS`, couleurs `C1/C2/C3`,
+layout). `user-config.fish` (déjà symlinké) pointe juste `STARSHIP_CONFIG` dessus.
+Rien à symlinker ni à faire rendre par caelestia. Personnaliser :
 
 ```sh
-python3 ~/.local/share/caelestia-perso/scripts/gen-starship.py    # régénère les 2 fichiers
-caelestia scheme set -n (caelestia scheme get -n)                 # re-rend le template
-exec fish                                                         # recharge le prompt
+# édite scripts/gen-starship.py (couleurs C1/C2/C3/TXT, SYMBOLS, CAP_*), puis :
+python3 ~/.local/share/caelestia-perso/scripts/gen-starship.py   # régénère config/starship.toml
+exec fish                                                        # recharge le prompt
 ```
 
 ## Config SDDM (`config/sddm/conf.d/`)
