@@ -25,9 +25,10 @@ les couleurs sont **celles de caelestia** et **suivent ton fond d'écran** en di
 On ne touche pas au `starship.toml` géré par caelestia : le nôtre est branché via la
 variable `STARSHIP_CONFIG` (dans `fish/user-config.fish`).
 
-- gauche : `OS › dossier › durée`, puis `❯` en 2ᵉ ligne ;
-- droite : `utilisateur › (git) › heure` — l'utilisateur est l'ancre toujours
-  présente, git n'apparaît que dans un dépôt.
+- gauche : `OS › dossier › durée` (en ms), puis `❯` en 2ᵉ ligne ;
+- une ligne double `═` relie les deux groupes ;
+- droite : `status › (git) › heure` — le code de sortie de la dernière commande
+  (✓ / ✗+code) est l'ancre toujours présente, git n'apparaît que dans un dépôt.
 
 Le style est produit par `scripts/gen-starship.py`, qui génère **deux** fichiers :
 un **template** (`config/caelestia-templates/starship.toml`, que caelestia rend vers

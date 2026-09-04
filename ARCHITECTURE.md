@@ -137,9 +137,15 @@ le lien jusque dans ce repo). On contourne **sans jamais toucher** à leur fichi
   **chaque changement de scheme**, en remplaçant les `{{ role.form }}` par la
   vraie couleur (`role` = rôle Material You de `scheme.json` ; `form` = `hex`,
   `rgb`, `hsl`…). On dépose donc un template `starship.toml` : les couleurs sont
-  **littéralement celles de caelestia** et se mettent à jour en direct (même les
-  terminaux ouverts, car Starship relit son fichier à chaque prompt). Le dégradé
-  bord(foncé)→centre(clair) utilise des rôles tonals réels du primary :
+  **littéralement celles de caelestia**. Nuance importante : notre prompt utilise
+  des **hex en dur** (truecolor), pas la palette ANSI. Au changement de scheme, il
+  ne se recolore donc PAS en direct comme le reste du terminal (que caelestia
+  remappe via la palette ANSI, OSC 4) : la ligne déjà affichée reste figée, et le
+  prompt prend les nouvelles couleurs **au prochain affichage** (Entrée) — car
+  Starship relit alors le fichier que caelestia vient de régénérer. C'est le prix
+  du **vrai dégradé tonal** (les noms ANSI se recoloreraient en direct mais ne
+  donnent que 16 couleurs discrètes). Le dégradé bord(foncé)→centre(clair) utilise
+  des rôles tonals réels du primary :
   `onPrimary` → `primaryContainer` → `primary` (aucune interpolation). **Piège
   vérifié** : n'utiliser que des rôles M3 *de base* (présents dans le scheme
   DYNAMIQUE) — les rôles `*Fixed` n'existent que dans le scheme statique, donc
@@ -153,16 +159,22 @@ le lien jusque dans ce repo). On contourne **sans jamais toucher** à leur fichi
   - gauche : `( OS › dossier › durée )` puis `$fill` (espace extensible) ; `❯`
     en ligne 2. **Tout est sur la ligne 1** grâce à `$fill` — on n'utilise PAS
     `right_format`, qui s'alignerait sur la ligne du `❯`.
-  - droite : `(user(status(branch+logo(heure)` en dépôt, `(user(heure)` hors dépôt.
-    Chaque jonction est UN demi-cercle `(` (le segment courant « mord » dans le
-    précédent : CAP_L, sa couleur SUR le fond du précédent).
-    **`username` (show_always) est l'ancre permanente** : comme il a la MÊME
-    couleur que la branche (c2), l'heure porte son `(` de jonction en **statique**
-    (bg c2), ce qui marche que le voisin de gauche soit la branche (dépôt) ou
-    l'utilisateur (hors dépôt). C'est ce qui permet de tout faire en statique,
-    **sans module `custom` conditionnel** (essayé, ne se rendait pas de façon
-    fiable). Pour changer l'ancre (mémoire, hostname, batterie…), garder la couleur
-    c2 pour préserver la jonction statique de l'heure.
+  - un connecteur **`$fill`** (ligne double `═`, couleur c2) relie visuellement le
+    groupe gauche et le groupe droit (les bouts des capsules restent inchangés).
+  - droite : `(status(gitstatus(branch+logo(heure)` en dépôt, `(status(heure)`
+    hors dépôt. Chaque jonction est UN demi-cercle `(` (le segment courant « mord »
+    dans le précédent : CAP_L, sa couleur SUR le fond du précédent).
+    **Le module `status` (code de sortie) est l'ancre permanente** : `disabled =
+    false` + `success_symbol` → il s'affiche AUSSI en cas de succès (✓), pas
+    seulement sur erreur (✗ + code). Comme il a la MÊME couleur que la branche
+    (c2), l'heure porte son `(` de jonction en **statique** (bg c2), ce qui marche
+    que le voisin de gauche soit la branche (dépôt) ou le status (hors dépôt) —
+    donc tout est statique, **sans module `custom` conditionnel** (essayé, ne se
+    rendait pas de façon fiable). Pour changer l'ancre (mémoire, hostname…), garder
+    la couleur c2 ; si le module choisi n'est pas naturellement permanent, le forcer
+    à s'afficher toujours (comme `status` via `success_symbol`).
+  - durée de commande en **ms** (`cmd_duration` : `min_time = 0`,
+    `show_milliseconds = true`).
 
 ### Chaîne (build + runtime)
 

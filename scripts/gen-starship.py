@@ -99,7 +99,7 @@ def build(mode: str) -> str:
     )
 
     # Ligne 1 : gauche + $fill (espace extensible) + droite ; ❯ en ligne 2.
-    fmt = "$os$directory$cmd_duration$fill$username$git_status$git_branch$time$line_break$character"
+    fmt = "$os$directory$cmd_duration$fill$status$git_status$git_branch$time$line_break$character"
 
     return f"""{header}
 # GÉNÉRÉ par scripts/gen-starship.py — ne pas éditer à la main (édite le script).
@@ -111,7 +111,8 @@ continuation_prompt = "[▸▹ ](dimmed white)"
 format = "{fmt}"
 
 [fill]
-symbol = " "
+symbol = "═"
+style = "fg:{c2}"
 
 [character]
 success_symbol = "[{S['prompt']}](bold {ok})"
@@ -136,6 +137,7 @@ format = "[{CAP_R}](fg:{c1} bg:{c2})[ {S['dir']} $path$read_only ](fg:{t2} bg:{c
 
 [cmd_duration]
 min_time = 0
+show_milliseconds = true
 format = "[{CAP_R}](fg:{c2} bg:{c3})[ {S['duration']} $duration ](fg:{t3} bg:{c3})[{CAP_R}](fg:{c3})"
 
 # ── Droite : (user(status(branch+logo(heure) en dépôt, (user(heure) sinon ──
@@ -163,11 +165,14 @@ symbol = ""
 truncation_length = 20
 truncation_symbol = "…"
 
-# username : ANCRE permanente (show_always). Couleur branche (c2) → jonction
-# statique de l'heure (voir plus haut). Remplace l'ancienne ancre batterie.
-[username]
-show_always = true
-format = "[{CAP_L}](fg:{c2})[ {S['user']} $user ](fg:{t2} bg:{c2})"
+# status : ANCRE permanente. disabled=false + success_symbol → s'affiche AUSSI
+# en succès (pas seulement sur erreur). Couleur branche (c2) → jonction statique
+# de l'heure. ✓ = succès, ✗ + code = échec de la dernière commande.
+[status]
+disabled = false
+format = "[{CAP_L}](fg:{c2})[ $symbol$maybe_int ](fg:{t2} bg:{c2})"
+success_symbol = "✓"
+symbol = "✗ "
 [time]
 disabled = false
 format = "[{CAP_L}](fg:{c1} bg:{c2})[ {S['time']} $time ](fg:{t1} bg:{c1})[{CAP_R}](fg:{c1})"

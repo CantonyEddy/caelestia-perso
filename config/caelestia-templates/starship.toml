@@ -5,10 +5,11 @@
 add_newline = false
 continuation_prompt = "[▸▹ ](dimmed white)"
 
-format = "$os$directory$cmd_duration$fill$username$git_status$git_branch$time$line_break$character"
+format = "$os$directory$cmd_duration$fill$status$git_status$git_branch$time$line_break$character"
 
 [fill]
-symbol = " "
+symbol = "═"
+style = "fg:#{{ primaryContainer.hex }}"
 
 [character]
 success_symbol = "[❯](bold #{{ primary.hex }})"
@@ -33,6 +34,7 @@ format = "[](fg:#{{ onPrimary.hex }} bg:#{{ primaryContainer.hex }})[  $pa
 
 [cmd_duration]
 min_time = 0
+show_milliseconds = true
 format = "[](fg:#{{ primaryContainer.hex }} bg:#{{ primary.hex }})[  $duration ](fg:#{{ onPrimary.hex }} bg:#{{ primary.hex }})[](fg:#{{ primary.hex }})"
 
 # ── Droite : (user(status(branch+logo(heure) en dépôt, (user(heure) sinon ──
@@ -60,11 +62,14 @@ symbol = ""
 truncation_length = 20
 truncation_symbol = "…"
 
-# username : ANCRE permanente (show_always). Couleur branche (c2) → jonction
-# statique de l'heure (voir plus haut). Remplace l'ancienne ancre batterie.
-[username]
-show_always = true
-format = "[](fg:#{{ primaryContainer.hex }})[  $user ](fg:#{{ onPrimaryContainer.hex }} bg:#{{ primaryContainer.hex }})"
+# status : ANCRE permanente. disabled=false + success_symbol → s'affiche AUSSI
+# en succès (pas seulement sur erreur). Couleur branche (c2) → jonction statique
+# de l'heure. ✓ = succès, ✗ + code = échec de la dernière commande.
+[status]
+disabled = false
+format = "[](fg:#{{ primaryContainer.hex }})[ $symbol$maybe_int ](fg:#{{ onPrimaryContainer.hex }} bg:#{{ primaryContainer.hex }})"
+success_symbol = "✓"
+symbol = "✗ "
 [time]
 disabled = false
 format = "[](fg:#{{ onPrimary.hex }} bg:#{{ primaryContainer.hex }})[  $time ](fg:#{{ onPrimaryContainer.hex }} bg:#{{ onPrimary.hex }})[](fg:#{{ onPrimary.hex }})"
