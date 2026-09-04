@@ -23,6 +23,11 @@ hl.bind("SUPER + M", hl.dsp.exec_cmd("uwsm app -- spotify")) -- ex-$kbMusic
 -- Sélecteur d'emoji : tue une instance existante de fuzzel sinon lance caelestia emoji
 hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p"))
 
+-- Anti-veille : bascule un verrou Wayland idle-inhibit (respecté par Hyprland,
+-- donc stoppe la mise en veille / le verrou d'écran auto). Pour les vidéos.
+-- Dépend de wlinhibit (AUR) : paru -S wlinhibit
+hl.bind("SUPER + I", hl.dsp.exec_cmd("bash $HOME/.local/share/caelestia-perso/scripts/idle-toggle.sh"))
+
 -- ============================================================
 -- Couche HYPER (Caps Lock maintenu, via keyd)
 -- ============================================================
@@ -66,5 +71,51 @@ for i = 1, 10 do
     hl.bind(vars.kbGoToWsGroup .. " + " .. kc, fn.wsaction("focus", "group", i))
     hl.bind(vars.kbMoveWinToWsGroup .. " + " .. kc, fn.wsaction("move", "group", i))
 end
+
+-- ============================================================
+-- Binds SYMBOLES réécrits en KEYCODE (parité QWERTY -> AZERTY)
+-- ============================================================
+-- Caelestia écrit ces raccourcis pour un clavier QWERTY. En AZERTY (kb_layout=fr)
+-- les keysyms -, =, \, "," tombent ailleurs, voire sont injoignables :
+--   backslash = AltGr+8  -> les binds "Center window", "PiP" et "resize 55x70"
+--   étaient donc IMPOSSIBLES à déclencher en AZERTY.
+-- On rebind par KEYCODE physique pour retrouver la POSITION du QWERTY documenté
+-- (le screenshot des raccourcis), quelle que soit la disposition. Chargé après
+-- leur keybinds.lua : nos combos identiques écrasent les leurs ; les anciens
+-- binds keysym qui subsistent tombent sur des touches AZERTY inoffensives ou
+-- injoignables (donc sans effet parasite).
+--
+-- Rappel : code:<n> = keycode Linux + 8.
+--   code:20 = '-' QWERTY (KEY_MINUS 12)     -> ')' en AZERTY FR
+--   code:21 = '=' QWERTY (KEY_EQUAL 13)     -> '=' en AZERTY FR (même position)
+--   code:51 = '\' QWERTY (KEY_BACKSLASH 43) -> '*µ' en AZERTY FR
+--   code:59 = ',' QWERTY (KEY_COMMA 51)     -> ';' en AZERTY FR
+--
+-- NB drag fenêtre (SUPER+Z / SUPER+X) : NON réécrits. "X" est déjà à la même
+-- position physique en AZERTY, et la position QWERTY de "Z" est occupée par la
+-- touche "W" (= SUPER + W, navigateur) en AZERTY -> un rebind par keycode
+-- entrerait en collision. Ces binds fonctionnent déjà comme lettres, et le drag
+-- souris (SUPER + LMB/RMB) marche quelle que soit la disposition.
+
+-- Redimensionnement fenêtre : on ne réécrit QUE le côté '-' (rétrécir).
+-- '=' (agrandir) est à la MÊME position physique en AZERTY (KEY_EQUAL) : le keysym
+-- "SUPER + Equal" de Caelestia marche déjà -> ajouter code:21 DOUBLERAIT l'action.
+-- '-' en revanche : le keysym "minus" tombe sur KEY_6 en AZERTY ; code:20 (KEY_MINUS)
+-- remet le rétrécir juste à gauche de l'agrandir (paire adjacente, comme en QWERTY).
+hl.bind("SUPER + code:20", fn.resize_active_window(-10, 0), { repeating = true })         -- largeur -
+hl.bind("SUPER + SHIFT + code:20", fn.resize_active_window(0, -10), { repeating = true }) -- hauteur -
+
+-- Média précédent (ex CTRL + SUPER + Minus). "suivant" (CTRL+SUPER+Equal) est déjà
+-- bien placé (KEY_EQUAL) -> pas de code:21 (sinon double déclenchement).
+hl.bind("CTRL + SUPER + code:20", hl.dsp.global("caelestia:mediaPrev"), { locked = true })
+
+-- Centrer / redim. 55x70 + centrer (ex CTRL + SUPER + \ et CTRL + SUPER + ALT + \)
+hl.bind("CTRL + SUPER + code:51", hl.dsp.window.center())
+hl.bind("CTRL + SUPER + ALT + code:51", hl.dsp.window.resize(fn.resize_by_screen(55, 70)))
+hl.bind("CTRL + SUPER + ALT + code:51", hl.dsp.window.center())
+
+-- NB : group toggle/lock ("SUPER [+SHIFT] + Comma") NON réécrits : le keysym ','
+-- est déjà joignable et sans conflit en AZERTY (cf. hypr-vars.lua). Un code:59
+-- collisionnerait avec "SUPER + semicolon" (emoji).
 
 return true
