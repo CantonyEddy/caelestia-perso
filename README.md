@@ -12,9 +12,38 @@ Caelestia sans perdre ces réglages, et versionner la config.
 - **Hyprland** (en Lua) : variables, raccourcis, layout clavier FR, règles…
 - **Quelques apps** que Caelestia ne gère pas : fuzzel, cava, htop, zed, spicetify.
 - **SDDM** : la config fonctionnelle (Wayland, numlock…), pas le thème visuel.
+- **Prompt Starship** : un prompt « capsules » perso dont les couleurs suivent le
+  scheme caelestia (donc ton fond d'écran). Voir la section dédiée plus bas.
 
 Les apps et couleurs gérées par Caelestia (foot, fish, btop, scheme dynamique du
 wallpaper…) sont **laissées à Caelestia**. Détails dans [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Prompt Starship
+
+Le prompt de fish est un prompt **Starship** perso, en « capsules » arrondies, dont
+les couleurs sont **celles de caelestia** et **suivent ton fond d'écran** en direct.
+On ne touche pas au `starship.toml` géré par caelestia : le nôtre est branché via la
+variable `STARSHIP_CONFIG` (dans `fish/user-config.fish`).
+
+- gauche : `OS › dossier › durée`, puis `❯` en 2ᵉ ligne ;
+- droite : `utilisateur › (git) › heure` — l'utilisateur est l'ancre toujours
+  présente, git n'apparaît que dans un dépôt.
+
+Le style est produit par `scripts/gen-starship.py`, qui génère **deux** fichiers :
+un **template** (`config/caelestia-templates/starship.toml`, que caelestia rend vers
+`~/.local/state/caelestia/theme/starship.toml` à chaque changement de scheme) et un
+**fallback** statique (`config/starship.toml`) au cas où le rendu n'existe pas encore.
+
+Pour changer le style (glyphes, dégradé, ancre, disposition), édite
+`scripts/gen-starship.py` puis régénère (fish) :
+
+```fish
+python3 ~/.local/share/caelestia-perso/scripts/gen-starship.py  # régénère les 2 fichiers
+caelestia scheme set -n (caelestia scheme get -n)               # re-rend le template
+exec fish                                                        # recharge le prompt
+```
+
+Détails techniques (jonctions arrondies, rôles Material You…) dans [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Raccourcis clavier
 
@@ -138,6 +167,8 @@ Les `.bak-<date>` laissés par `install.sh` ne sont pas supprimés automatiqueme
   immédiatement active.
 - **SDDM** (`config/sddm/conf.d/…`) : après modif, relancer `./install.sh` (copie
   vers `/etc`).
+- **Prompt Starship** : éditer `scripts/gen-starship.py`, puis régénérer (voir la
+  section « Prompt Starship »).
 
 ## Liens utiles
 

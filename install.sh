@@ -163,6 +163,17 @@ link "$REPO/fish/user-config.fish"              "$DEST/user-config.fish"
 link "$REPO/shell/shell.json"                   "$DEST/shell.json"
 link "$REPO/shell/monitors/eDP-1/shell.json"    "$DEST/monitors/eDP-1/shell.json"
 link "$REPO/shell/monitors/HDMI-A-1/shell.json" "$DEST/monitors/HDMI-A-1/shell.json"
+# Template Starship (prompt perso) : caelestia le rend vers
+# ~/.local/state/caelestia/theme/starship.toml à chaque changement de scheme.
+link "$REPO/config/caelestia-templates/starship.toml" "$DEST/templates/starship.toml"
+
+# Force un premier rendu du template (sinon il n'apparaît qu'au prochain scheme).
+if command -v caelestia >/dev/null 2>&1; then
+  cur="$(caelestia scheme get -n 2>/dev/null || true)"
+  if [[ -n "$cur" ]] && caelestia scheme set -n "$cur" >/dev/null 2>&1; then
+    echo "  ↻ scheme réappliqué → template starship rendu"
+  fi
+fi
 
 echo
 echo "Linking configs ~/.config perso depuis $REPO/config :"

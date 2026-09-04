@@ -1,0 +1,72 @@
+# FALLBACK statique (couleurs par défaut caelestia) si le rendu manque.
+# GÉNÉRÉ par scripts/gen-starship.py — ne pas éditer à la main (édite le script).
+# Capsules connectées, dégradé bord(foncé)→centre(clair) via rôles Material You.
+
+add_newline = false
+continuation_prompt = "[▸▹ ](dimmed white)"
+
+format = "$os$directory$cmd_duration$fill$username$git_status$git_branch$time$line_break$character"
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = "[❯](bold #c2c1ff)"
+error_symbol = "[❯](bold #ffb4ab)"
+vimcmd_symbol = "[❯](bold #7171ac)"
+
+# ── Gauche : OS(c1 foncé) → dossier(c2) → durée(c3 clair) ──
+[os]
+disabled = false
+format = "[](fg:#2a2a60)[ $symbol ](fg:#ffffff bg:#2a2a60)"
+[os.symbols]
+Arch = ""
+Linux = ""
+
+[directory]
+home_symbol = "~"
+truncation_length = 3
+truncation_symbol = "…/"
+read_only = " "
+use_os_path_sep = true
+format = "[](fg:#2a2a60 bg:#7171ac)[  $path$read_only ](fg:#ffffff bg:#7171ac)"
+
+[cmd_duration]
+min_time = 0
+format = "[](fg:#7171ac bg:#c2c1ff)[  $duration ](fg:#2a2a60 bg:#c2c1ff)[](fg:#c2c1ff)"
+
+# ── Droite : (user(status(branch+logo(heure) en dépôt, (user(heure) sinon ──
+# Chaque segment « mord » dans le précédent : CAP_L, SA couleur SUR le fond du
+# précédent. username = ANCRE permanente (c2, même couleur que la branche) → le
+# `(` de jonction de l'heure (c1 sur c2) est STATIQUE et marche dans les 2 cas.
+# git_status/git_branch sont optionnels (disparaissent hors dépôt).
+[git_status]
+format = "[](fg:#c2c1ff bg:#7171ac)[ $all_status$ahead_behind ](fg:#2a2a60 bg:#c2c1ff)"
+conflicted = "!"
+ahead = "⇡$count"
+behind = "⇣$count"
+diverged = "⇕⇡$ahead_count⇣$behind_count"
+untracked = "?"
+stashed = "≡"
+modified = "●"
+staged = "+$count"
+renamed = "»"
+deleted = "✘"
+
+[git_branch]
+only_attached = false
+format = "[](fg:#7171ac bg:#c2c1ff)[  $branch ](fg:#ffffff bg:#7171ac)"
+symbol = ""
+truncation_length = 20
+truncation_symbol = "…"
+
+# username : ANCRE permanente (show_always). Couleur branche (c2) → jonction
+# statique de l'heure (voir plus haut). Remplace l'ancienne ancre batterie.
+[username]
+show_always = true
+format = "[](fg:#7171ac)[  $user ](fg:#ffffff bg:#7171ac)"
+[time]
+disabled = false
+format = "[](fg:#2a2a60 bg:#7171ac)[  $time ](fg:#ffffff bg:#2a2a60)[](fg:#2a2a60)"
+time_format = "%R"
+utc_time_offset = "local"

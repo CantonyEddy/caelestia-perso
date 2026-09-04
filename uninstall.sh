@@ -83,6 +83,7 @@ unlink_repo "$DEST/user-config.fish"
 unlink_repo "$DEST/shell.json"
 unlink_repo "$DEST/monitors/eDP-1/shell.json"
 unlink_repo "$DEST/monitors/HDMI-A-1/shell.json"
+unlink_repo "$DEST/templates/starship.toml"
 
 echo
 echo "2) Symlinks apps perso dans ~/.config/ :"
