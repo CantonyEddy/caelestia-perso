@@ -431,7 +431,7 @@
     "paths": {
         "mediaGif": "root:/assets/bongocat.gif",
         "sessionGif": "root:/assets/kurukuru.gif",
-        "wallpaperDir": "/home/ryu/Pictures/Wallpapers"
+        "wallpaperDir": "~/Pictures/Wallpapers"
     },
     "services": {
         "audioIncrement": 0.1,
