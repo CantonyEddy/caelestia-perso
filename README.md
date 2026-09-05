@@ -10,7 +10,9 @@ Caelestia sans perdre ces réglages, et versionner la config.
 ## Ce que ça contient
 
 - **Hyprland** (en Lua) : variables, raccourcis, layout clavier FR, règles…
-- **Quelques apps** que Caelestia ne gère pas : fuzzel, cava, htop, zed, spicetify.
+- **Quelques apps** que Caelestia ne gère pas : fuzzel, cava, htop, zed (configs
+  symlinkées) ; les préférences **spicetify** sont appliquées par `install.sh`
+  (`spicetify config`), pas via un fichier partagé (il contient des chemins machine).
 - **SDDM** : la config fonctionnelle (Wayland, numlock…), pas le thème visuel.
 - **Prompt Starship** : un prompt « capsules » perso dont les couleurs suivent le
   scheme caelestia (donc ton fond d'écran). Voir la section dédiée plus bas.

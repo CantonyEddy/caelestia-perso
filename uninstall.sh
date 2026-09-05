@@ -83,7 +83,6 @@ unlink_repo "$DEST/user-config.fish"
 unlink_repo "$DEST/shell.json"
 unlink_repo "$DEST/monitors/eDP-1/shell.json"
 unlink_repo "$DEST/monitors/HDMI-A-1/shell.json"
-unlink_repo "$DEST/templates/starship.toml"
 
 echo
 echo "2) Symlinks apps perso dans ~/.config/ :"
@@ -92,7 +91,7 @@ unlink_repo "$CFG/cava/config"
 unlink_repo "$CFG/htop/htoprc"
 unlink_repo "$CFG/zed/settings.json"
 unlink_repo "$CFG/zed/keymap.json"
-unlink_repo "$CFG/spicetify/config-xpui.ini"
+# (spicetify/config-xpui.ini n'est plus symlinké : géré localement par spicetify)
 unlink_repo "$CFG/mimeapps.list"
 # environment.d/ : liens éventuels vers config/env.d/*.conf
 if [[ -d "$CFG/environment.d" ]]; then

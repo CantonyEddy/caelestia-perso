@@ -67,9 +67,12 @@ config/
 ├── fuzzel/fuzzel.ini
 ├── cava/config
 ├── htop/htoprc
-├── zed/settings.json + keymap.json
-└── spicetify/config-xpui.ini
+└── zed/settings.json + keymap.json
 ```
+
+(Spicetify n'est PAS dans cette liste : `config-xpui.ini` n'est plus versionné —
+voir « Portabilité » ci-dessus. Ses préférences sont appliquées par `install.sh`
+via `spicetify config`.)
 
 ### Pourquoi ce périmètre restreint (analyse Caelestia)
 
@@ -82,7 +85,7 @@ par copie** (voir `manifest.toml`). Comparaison faite :
 | foot, fish, fastfetch, micro | identiques au défaut Caelestia | **non versionnés**  |
 | btop                       | perso mais géré par Caelestia   | **non versionné**   |
 | fuzzel, cava, htop, zed    | absents du clone → 100% perso   | **versionnés**      |
-| spicetify/config-xpui.ini  | absent du clone → perso         | **versionné**       |
+| spicetify/config-xpui.ini  | réécrit par spicetify (état machine) | **non versionné** (`spicetify config` dans install.sh) |
 
 Versionner un fichier géré par Caelestia créerait un conflit : au prochain
 `caelestia update`, Caelestia recopie son fichier vers `~/.config/<app>/` et
@@ -112,8 +115,16 @@ Ce dépôt est **partagé** : tout fichier versionné doit éviter les chemins a
 `shell/shell.json` → `paths.wallpaperDir = "~/Pictures/Wallpapers"` (le shell
 développe le `~` par utilisateur), au lieu de `/home/ryu/Pictures/Wallpapers` qui
 cassait le picker chez les autres. Préférer `~`, `$HOME`, ou un chemin relatif
-partout où c'est possible. **Reste à traiter** : `config/spicetify/config-xpui.ini`
-(`prefs_path = /home/ryu/…`, spicetify n'expanse pas forcément `~`).
+partout où c'est possible.
+
+**Spicetify** est un cas à part : `config-xpui.ini` exige des chemins **absolus**
+(spicetify n'expanse pas `~`) ET spicetify **réécrit** ce fichier à chaque `apply`
+(`prefs_path`/`spotify_path` auto-détectés + `[Backup] version` = version locale de
+Spotify). Le symlinker polluait donc le repo avec de l'état machine, partagé aux
+autres. On **ne le versionne plus** : `install.sh` applique les **préférences
+portables** via `spicetify config … ; spicetify apply` (spicetify écrit les bons
+chemins locaux), et retire un éventuel ancien symlink pour que spicetify régénère
+un fichier local.
 
 ### Fichiers isolés à la racine de `~/.config`
 

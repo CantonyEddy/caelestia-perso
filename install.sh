@@ -163,17 +163,9 @@ link "$REPO/fish/user-config.fish"              "$DEST/user-config.fish"
 link "$REPO/shell/shell.json"                   "$DEST/shell.json"
 link "$REPO/shell/monitors/eDP-1/shell.json"    "$DEST/monitors/eDP-1/shell.json"
 link "$REPO/shell/monitors/HDMI-A-1/shell.json" "$DEST/monitors/HDMI-A-1/shell.json"
-# Template Starship (prompt perso) : caelestia le rend vers
-# ~/.local/state/caelestia/theme/starship.toml à chaque changement de scheme.
-link "$REPO/config/caelestia-templates/starship.toml" "$DEST/templates/starship.toml"
-
-# Force un premier rendu du template (sinon il n'apparaît qu'au prochain scheme).
-if command -v caelestia >/dev/null 2>&1; then
-  cur="$(caelestia scheme get -n 2>/dev/null || true)"
-  if [[ -n "$cur" ]] && caelestia scheme set -n "$cur" >/dev/null 2>&1; then
-    echo "  ↻ scheme réappliqué → template starship rendu"
-  fi
-fi
+# Prompt Starship perso : rien à symlinker ici. La config (config/starship.toml,
+# couleurs ANSI, statique) est pointée par STARSHIP_CONFIG dans user-config.fish
+# (déjà symlinké ci-dessus). caelestia remappe la palette → recolore en direct.
 
 echo
 echo "Linking configs ~/.config perso depuis $REPO/config :"
@@ -187,7 +179,23 @@ link "$REPO/config/cava/config"                      "$CFG/cava/config"
 link "$REPO/config/htop/htoprc"                      "$CFG/htop/htoprc"
 link "$REPO/config/zed/settings.json"                "$CFG/zed/settings.json"
 link "$REPO/config/zed/keymap.json"                  "$CFG/zed/keymap.json"
-link "$REPO/config/spicetify/config-xpui.ini"        "$CFG/spicetify/config-xpui.ini"
+# Spicetify : on ne symlinke PAS config-xpui.ini. spicetify le réécrit à chaque
+# `apply` (prefs_path/spotify_path auto-détectés + [Backup] version = ÉTAT MACHINE,
+# non portable) → via un symlink ça polluerait le repo. On applique juste les
+# PRÉFÉRENCES portables via `spicetify config` (spicetify gère les chemins locaux).
+if command -v spicetify >/dev/null 2>&1; then
+  scfg="$CFG/spicetify/config-xpui.ini"
+  # retire un ancien symlink repo pour que spicetify écrive un fichier LOCAL
+  if [[ -L "$scfg" && "$(readlink -f "$scfg")" == "$REPO"/* ]]; then
+    rm -f "$scfg"; echo "  ~ ancien symlink spicetify retiré (fichier local régénéré)"
+  fi
+  spicetify config \
+    current_theme caelestia color_scheme caelestia \
+    inject_css 1 replace_colors 1 inject_theme_js 1 \
+    home_config 1 experimental_features 1 custom_apps marketplace \
+    >/dev/null 2>&1 && echo "  → préférences spicetify appliquées (thème caelestia + options)"
+  spicetify apply >/dev/null 2>&1 || echo "  ! spicetify apply à relancer à la main (Spotify lancé au moins une fois ?)"
+fi
 # Fichiers isolés à la racine de ~/.config (seedés manuellement, voir README)
 [[ -e "$REPO/config/mimeapps.list" ]] && link "$REPO/config/mimeapps.list" "$CFG/mimeapps.list"
 
