@@ -12,18 +12,11 @@ alias u "caelestia update"
 alias v "nvim"
 
 # --- Variables d'environnement ---
-# Prompt Starship perso « capsules ». Les couleurs viennent de la propagation
-# NATIVE de caelestia : le template ~/.config/caelestia/templates/starship.toml
-# est rendu par caelestia vers ~/.local/state/caelestia/theme/starship.toml à
-# chaque changement de scheme. On pointe STARSHIP_CONFIG dessus (fallback sur la
-# version statique versionnée si le rendu n'existe pas encore).
-set -l _cp_state (test -n "$XDG_STATE_HOME"; and echo $XDG_STATE_HOME; or echo $HOME/.local/state)
-set -l _cp_theme $_cp_state/caelestia/theme/starship.toml
-if test -f "$_cp_theme"
-    set -gx STARSHIP_CONFIG "$_cp_theme"
-else
-    set -gx STARSHIP_CONFIG $HOME/.local/share/caelestia-perso/config/starship.toml
-end
+# Prompt Starship perso « capsules », en couleurs ANSI : caelestia remappe la
+# palette en direct, donc le prompt (ligne active ET scrollback) se recolore tout
+# seul au changement de scheme. Config STATIQUE versionnée, pointée par
+# STARSHIP_CONFIG. On ne touche pas au starship.toml géré par caelestia.
+set -gx STARSHIP_CONFIG $HOME/.local/share/caelestia-perso/config/starship.toml
 # set -gx EDITOR nvim
 # set -gx PATH $HOME/.local/bin $PATH
 

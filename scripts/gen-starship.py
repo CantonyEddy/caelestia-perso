@@ -1,109 +1,59 @@
 #!/usr/bin/env python3
-"""Construit le prompt Starship « capsules » pour caelestia.
+"""Construit le prompt Starship « capsules » pour caelestia — couleurs ANSI.
 
-⚠️ Outil de BUILD (pas de runtime). Il produit deux fichiers depuis UNE seule
-définition de layout :
+Les couleurs sont des INDICES DE PALETTE ANSI, pas des hex : caelestia remappe la
+palette en direct (séquences OSC). Conséquence : le prompt — ligne active ET
+scrollback — se recolore tout seul au changement de scheme, comme le reste du
+terminal. Pas besoin de template ni de postHook : un starship.toml STATIQUE
+suffit, la dynamique vient de la palette.
 
-  1. config/caelestia-templates/starship.toml  → le TEMPLATE caelestia, avec des
-     placeholders `{{ role.hex }}`. Symlinké dans ~/.config/caelestia/templates/
-     par install.sh. caelestia le rend vers ~/.local/state/caelestia/theme/
-     starship.toml à CHAQUE changement de scheme (propagation native, live).
-  2. config/starship.toml  → un FALLBACK statique (mêmes capsules, couleurs par
-     défaut caelestia figées), utilisé si le fichier rendu n'existe pas encore.
+Indices utilisés (tous remappés par caelestia) :
+  16 = primary, 17 = secondary, 18 = tertiary (les 3 accents du scheme)
+  0  = term0 (sombre) -> texte lisible sur les accents clairs (mode sombre)
+  1  = red (erreur)
+Contrepartie : pas de dégradé tonal d'une seule teinte (la palette n'a que des
+couleurs distinctes) — chaque bloc a SA couleur, c'est le but.
 
-Les couleurs viennent DIRECTEMENT des rôles Material You de caelestia (pas
-d'interpolation) : le dégradé bord→centre = rôles tonals du primary
-  onPrimary (foncé) → primaryContainer (moyen) → primary (clair).
-N'utiliser QUE des rôles de base (présents dans le scheme dynamique) : les rôles
-*Fixed n'existent que dans le scheme statique → placeholder non remplacé → cassé.
-Quand le wallpaper change, caelestia régénère la palette : le dégradé suit.
+Sortie : config/starship.toml (statique), pointé par STARSHIP_CONFIG
+(fish/user-config.fish). On ne touche pas au starship.toml géré par caelestia.
 
-Usage : python3 gen-starship.py        # écrit les deux fichiers dans le repo
-Régénère après avoir modifié SYMBOLS, les rôles (ROLES) ou le layout.
+Régénère après avoir modifié SYMBOLS / les couleurs / le layout :
+  python3 gen-starship.py ; exec fish
 """
-
-from __future__ import annotations
 
 from pathlib import Path
 
-# ─────────────────────────── Réglages ───────────────────────────
-
 # Glyphes Nerd Font (JetBrains Mono Nerd, fournie par caelestia).
 SYMBOLS = {
-    "os_arch": "\uf303",   # nf-linux-archlinux (logo Arch)
-    "os_linux": "\uf17c",  # nf-fa-linux (Tux, fallback)
-    "dir": "\uf07b",       # nf-fa-folder (dossier)
-    "git": "\ue725",       # nf-dev-git_branch (branche)
-    "duration": "\uf252",  # nf-fa-hourglass_end (duree)
-    "time": "\uf017",      # nf-fa-clock_o (heure)
-    "bat_full": "\uf240",       # nf-fa-battery_full
-    "bat_charging": "\uf0e7",   # nf-fa-bolt (en charge)
-    "bat_discharging": "\uf242",# nf-fa-battery_half
-    "bat_low": "\uf244",        # nf-fa-battery_empty
-    "user": "\uf007",           # nf-fa-user
-    "prompt": "\u276f",    # ❯
+    "os_arch": "",   # nf-linux-archlinux (logo Arch)
+    "os_linux": "",  # nf-fa-linux (Tux, fallback)
+    "dir": "",       # nf-fa-folder (dossier)
+    "git": "",       # nf-dev-git_branch (branche)
+    "duration": "",  # nf-fa-hourglass_end (duree)
+    "time": "",      # nf-fa-clock_o (heure)
+    "prompt": "❯",    # ❯
 }
-CAP_L = "\ue0b6"   # nf-pl-left_soft_divider  (demi-cercle gauche)
-CAP_R = "\ue0b4"   # nf-pl-right_soft_divider (demi-cercle droit)
+CAP_L = ""   # nf-pl-left_soft_divider  (demi-cercle gauche)
+CAP_R = ""   # nf-pl-right_soft_divider (demi-cercle droit)
 
-# Rôles caelestia (Material You) pour le dégradé bord(foncé)→centre(clair).
-# IMPORTANT : uniquement des rôles M3 « de base » présents dans le scheme DYNAMIQUE
-# (les *Fixed n'existent que dans le scheme statique → placeholder non remplacé →
-# couleur invalide → segment cassé). En mode sombre : onPrimary(foncé) <
-# primaryContainer(moyen) < primary(clair) par luminosité.
-ROLES = {
-    "c1": "onPrimary",          # segment foncé (bords : OS, heure)
-    "c2": "primaryContainer",   # segment moyen (dossier, branche)
-    "c3": "primary",            # segment clair (durée, git status : centre)
-    "t1": "onPrimaryContainer", # texte sur c1 (clair)
-    "t2": "onPrimaryContainer", # texte sur c2 (clair)
-    "t3": "onPrimary",          # texte sur c3 (foncé)
-    "ok": "primary",            # ❯ succès
-    "err": "error",             # ❯ erreur
-    "vim": "primaryContainer",  # ❯ mode vi
-}
-
-# Palette par défaut caelestia (hypr/scheme/default.lua) pour le fallback figé.
-# Ne mettre QUE des rôles utilisés par ROLES (rôles de base, présents partout).
-DEFAULT_HEX = {
-    "onPrimary": "2a2a60",
-    "primaryContainer": "7171ac",
-    "primary": "c2c1ff",
-    "onPrimaryContainer": "ffffff",
-    "error": "ffb4ab",
-}
+# Couleurs = indices de palette ANSI remappés par caelestia (recolore en direct).
+C1 = "18"   # tertiary  — blocs "extérieurs" (OS, heure)
+C2 = "16"   # primary   — blocs "milieu" (dossier, branche, status = ancre)
+C3 = "17"   # secondary — blocs "centre" (durée, git status)
+TXT = "0"   # texte sombre (term0) sur les accents clairs
+OK = "17"   # ❯ succès
+ERR = "1"   # ❯ erreur (red)
+VIM = "16"  # ❯ mode vi
 
 
-# ─────────────────────────── Rendu ───────────────────────────
-
-def _colour(role: str, mode: str) -> str:
-    """Renvoie la couleur d'un rôle : placeholder template ou hex figé."""
-    if mode == "template":
-        return "#{{ " + role + ".hex }}"
-    return "#" + DEFAULT_HEX[role]
-
-
-def build(mode: str) -> str:
-    def c(key: str) -> str:
-        return _colour(ROLES[key], mode)
-
-    c1, c2, c3 = c("c1"), c("c2"), c("c3")
-    t1, t2, t3 = c("t1"), c("t2"), c("t3")
-    ok, err, vim = c("ok"), c("err"), c("vim")
+def build() -> str:
     S = SYMBOLS
-
-    header = (
-        "# TEMPLATE caelestia — rendu par `apply_user_templates` à chaque scheme."
-        if mode == "template"
-        else "# FALLBACK statique (couleurs par défaut caelestia) si le rendu manque."
-    )
-
-    # Ligne 1 : gauche + $fill (espace extensible) + droite ; ❯ en ligne 2.
     fmt = "$os$directory$cmd_duration$fill$status$git_status$git_branch$time$line_break$character"
 
-    return f"""{header}
-# GÉNÉRÉ par scripts/gen-starship.py — ne pas éditer à la main (édite le script).
-# Capsules connectées, dégradé bord(foncé)→centre(clair) via rôles Material You.
+    return f"""# GÉNÉRÉ par scripts/gen-starship.py — ne pas éditer à la main (édite le script).
+# Couleurs ANSI (indices de palette remappés par caelestia) -> le prompt se
+# recolore en direct au changement de scheme, scrollback inclus. Pas de dégradé
+# tonal (palette = couleurs distinctes) : chaque bloc a sa couleur.
 
 add_newline = false
 continuation_prompt = "[▸▹ ](dimmed white)"
@@ -112,17 +62,17 @@ format = "{fmt}"
 
 [fill]
 symbol = "═"
-style = "fg:{c2}"
+style = "fg:{C2}"
 
 [character]
-success_symbol = "[{S['prompt']}](bold {ok})"
-error_symbol = "[{S['prompt']}](bold {err})"
-vimcmd_symbol = "[{S['prompt']}](bold {vim})"
+success_symbol = "[{S['prompt']}](bold {OK})"
+error_symbol = "[{S['prompt']}](bold {ERR})"
+vimcmd_symbol = "[{S['prompt']}](bold {VIM})"
 
-# ── Gauche : OS(c1 foncé) → dossier(c2) → durée(c3 clair) ──
+# ── Gauche : OS(C1) → dossier(C2) → durée(C3), capsule connectée ──
 [os]
 disabled = false
-format = "[{CAP_L}](fg:{c1})[ $symbol ](fg:{t1} bg:{c1})"
+format = "[{CAP_L}](fg:{C1})[ $symbol ](fg:{TXT} bg:{C1})"
 [os.symbols]
 Arch = "{S['os_arch']}"
 Linux = "{S['os_linux']}"
@@ -133,20 +83,22 @@ truncation_length = 3
 truncation_symbol = "…/"
 read_only = " "
 use_os_path_sep = true
-format = "[{CAP_R}](fg:{c1} bg:{c2})[ {S['dir']} $path$read_only ](fg:{t2} bg:{c2})"
+format = "[{CAP_R}](fg:{C1} bg:{C2})[ {S['dir']} $path$read_only ](fg:{TXT} bg:{C2})"
 
 [cmd_duration]
 min_time = 0
 show_milliseconds = true
-format = "[{CAP_R}](fg:{c2} bg:{c3})[ {S['duration']} $duration ](fg:{t3} bg:{c3})[{CAP_R}](fg:{c3})"
+format = "[{CAP_R}](fg:{C2} bg:{C3})[ {S['duration']} $duration ](fg:{TXT} bg:{C3})[{CAP_R}](fg:{C3})"
 
-# ── Droite : (user(status(branch+logo(heure) en dépôt, (user(heure) sinon ──
-# Chaque segment « mord » dans le précédent : CAP_L, SA couleur SUR le fond du
-# précédent. username = ANCRE permanente (c2, même couleur que la branche) → le
-# `(` de jonction de l'heure (c1 sur c2) est STATIQUE et marche dans les 2 cas.
-# git_status/git_branch sont optionnels (disparaissent hors dépôt).
+# ── Droite : (status(git_status(branch+logo(heure) — status = ancre (C2) ──
+[status]
+disabled = false
+format = "[{CAP_L}](fg:{C2})[ $symbol$maybe_int ](fg:{TXT} bg:{C2})"
+success_symbol = "✓"
+symbol = "✗ "
+
 [git_status]
-format = "[{CAP_L}](fg:{c3} bg:{c2})[ $all_status$ahead_behind ](fg:{t3} bg:{c3})"
+format = "[{CAP_L}](fg:{C3} bg:{C2})[ $all_status$ahead_behind ](fg:{TXT} bg:{C3})"
 conflicted = "!"
 ahead = "⇡$count"
 behind = "⇣$count"
@@ -160,37 +112,24 @@ deleted = "✘"
 
 [git_branch]
 only_attached = false
-format = "[{CAP_L}](fg:{c2} bg:{c3})[ {S['git']} $branch ](fg:{t2} bg:{c2})"
+format = "[{CAP_L}](fg:{C2} bg:{C3})[ {S['git']} $branch ](fg:{TXT} bg:{C2})"
 symbol = ""
 truncation_length = 20
 truncation_symbol = "…"
 
-# status : ANCRE permanente. disabled=false + success_symbol → s'affiche AUSSI
-# en succès (pas seulement sur erreur). Couleur branche (c2) → jonction statique
-# de l'heure. ✓ = succès, ✗ + code = échec de la dernière commande.
-[status]
-disabled = false
-format = "[{CAP_L}](fg:{c2})[ $symbol$maybe_int ](fg:{t2} bg:{c2})"
-success_symbol = "✓"
-symbol = "✗ "
 [time]
 disabled = false
-format = "[{CAP_L}](fg:{c1} bg:{c2})[ {S['time']} $time ](fg:{t1} bg:{c1})[{CAP_R}](fg:{c1})"
+format = "[{CAP_L}](fg:{C1} bg:{C2})[ {S['time']} $time ](fg:{TXT} bg:{C1})[{CAP_R}](fg:{C1})"
 time_format = "%R"
 utc_time_offset = "local"
 """
 
 
 def main() -> int:
-    repo = Path(__file__).resolve().parent.parent
-    targets = {
-        "template": repo / "config" / "caelestia-templates" / "starship.toml",
-        "fallback": repo / "config" / "starship.toml",
-    }
-    for mode, path in targets.items():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(build(mode))
-        print(f"écrit : {path}")
+    out = Path(__file__).resolve().parent.parent / "config" / "starship.toml"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(build())
+    print(f"écrit : {out}")
     return 0
 
 

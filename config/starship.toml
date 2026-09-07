@@ -1,6 +1,7 @@
-# FALLBACK statique (couleurs par défaut caelestia) si le rendu manque.
 # GÉNÉRÉ par scripts/gen-starship.py — ne pas éditer à la main (édite le script).
-# Capsules connectées, dégradé bord(foncé)→centre(clair) via rôles Material You.
+# Couleurs ANSI (indices de palette remappés par caelestia) -> le prompt se
+# recolore en direct au changement de scheme, scrollback inclus. Pas de dégradé
+# tonal (palette = couleurs distinctes) : chaque bloc a sa couleur.
 
 add_newline = false
 continuation_prompt = "[▸▹ ](dimmed white)"
@@ -8,18 +9,18 @@ continuation_prompt = "[▸▹ ](dimmed white)"
 format = "$os$directory$cmd_duration$fill$status$git_status$git_branch$time$line_break$character"
 
 [fill]
-symbol = "═"
-style = "fg:#7171ac"
+symbol = "━"
+style = "fg:16"
 
 [character]
-success_symbol = "[❯](bold #c2c1ff)"
-error_symbol = "[❯](bold #ffb4ab)"
-vimcmd_symbol = "[❯](bold #7171ac)"
+success_symbol = "[❯](bold 17)"
+error_symbol = "[❯](bold 1)"
+vimcmd_symbol = "[❯](bold 16)"
 
-# ── Gauche : OS(c1 foncé) → dossier(c2) → durée(c3 clair) ──
+# ── Gauche : OS(C1) → dossier(C2) → durée(C3), capsule connectée ──
 [os]
 disabled = false
-format = "[](fg:#2a2a60)[ $symbol ](fg:#ffffff bg:#2a2a60)"
+format = "[](fg:18)[ $symbol ](fg:0 bg:18)"
 [os.symbols]
 Arch = ""
 Linux = ""
@@ -30,20 +31,22 @@ truncation_length = 3
 truncation_symbol = "…/"
 read_only = " "
 use_os_path_sep = true
-format = "[](fg:#2a2a60 bg:#7171ac)[  $path$read_only ](fg:#ffffff bg:#7171ac)"
+format = "[](fg:18 bg:16)[  $path$read_only ](fg:0 bg:16)"
 
 [cmd_duration]
 min_time = 0
 show_milliseconds = true
-format = "[](fg:#7171ac bg:#c2c1ff)[  $duration ](fg:#2a2a60 bg:#c2c1ff)[](fg:#c2c1ff)"
+format = "[](fg:16 bg:17)[  $duration ](fg:0 bg:17)[](fg:17)"
 
-# ── Droite : (user(status(branch+logo(heure) en dépôt, (user(heure) sinon ──
-# Chaque segment « mord » dans le précédent : CAP_L, SA couleur SUR le fond du
-# précédent. username = ANCRE permanente (c2, même couleur que la branche) → le
-# `(` de jonction de l'heure (c1 sur c2) est STATIQUE et marche dans les 2 cas.
-# git_status/git_branch sont optionnels (disparaissent hors dépôt).
+# ── Droite : (status(git_status(branch+logo(heure) — status = ancre (C2) ──
+[status]
+disabled = false
+format = "[](fg:16)[ $symbol$maybe_int ](fg:0 bg:16)"
+success_symbol = "✓"
+symbol = "✗ "
+
 [git_status]
-format = "[](fg:#c2c1ff bg:#7171ac)[ $all_status$ahead_behind ](fg:#2a2a60 bg:#c2c1ff)"
+format = "[](fg:17 bg:16)[ $all_status$ahead_behind ](fg:0 bg:17)"
 conflicted = "!"
 ahead = "⇡$count"
 behind = "⇣$count"
@@ -57,21 +60,13 @@ deleted = "✘"
 
 [git_branch]
 only_attached = false
-format = "[](fg:#7171ac bg:#c2c1ff)[  $branch ](fg:#ffffff bg:#7171ac)"
+format = "[](fg:16 bg:17)[  $branch ](fg:0 bg:16)"
 symbol = ""
 truncation_length = 20
 truncation_symbol = "…"
 
-# status : ANCRE permanente. disabled=false + success_symbol → s'affiche AUSSI
-# en succès (pas seulement sur erreur). Couleur branche (c2) → jonction statique
-# de l'heure. ✓ = succès, ✗ + code = échec de la dernière commande.
-[status]
-disabled = false
-format = "[](fg:#7171ac)[ $symbol$maybe_int ](fg:#ffffff bg:#7171ac)"
-success_symbol = "✓"
-symbol = "✗ "
 [time]
 disabled = false
-format = "[](fg:#2a2a60 bg:#7171ac)[  $time ](fg:#ffffff bg:#2a2a60)[](fg:#2a2a60)"
+format = "[](fg:18 bg:16)[  $time ](fg:0 bg:18)[](fg:18)"
 time_format = "%R"
 utc_time_offset = "local"
