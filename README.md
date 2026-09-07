@@ -49,41 +49,141 @@ Détails techniques (jonctions arrondies, rôles Material You…) dans [ARCHITEC
 
 ## Raccourcis clavier
 
+Matrice complète ci-dessous. **★ = perso** (override ou ajout de ce dépôt) ; le
+reste est le **défaut Caelestia**. Les raccourcis sont donnés tels qu'on les tape
+en **AZERTY (`fr`)**.
+
 ### La couche HYPER (Caps Lock)
 
 Caps Lock a un **double rôle** (via keyd) :
 
 - **appui bref** → Verr.Maj normal ;
-- **maintenu + une touche** → raccourci de la couche « HYPER » (raccourcis
-  additionnels, sans conflit avec les applis).
+- **maintenu + une touche** → raccourci de la couche « HYPER » (touches
+  additionnelles envoyées en F13+ par keyd, donc sans conflit avec les applis).
 
-### Special workspaces : lancer / afficher / cacher
+### Applications & lanceurs
 
-Certaines apps vivent dans un **special workspace** : une fenêtre qu'on fait
-apparaître par-dessus l'écran courant, puis disparaître, sans encombrer les
-bureaux numérotés. **Un seul raccourci fait tout** : si l'app est fermée, elle se
-**lance** ; si elle est déjà ouverte, on **affiche/cache** sa fenêtre.
+Certaines apps vivent dans un **special workspace** (`— ws` ci-dessous) : un seul
+raccourci les **lance** si absentes, sinon **affiche/cache** leur fenêtre.
 
-| Raccourci | Application  |
-|-----------|--------------|
-| `SUPER+G` | Steam        |
-| `SUPER+O` | Obsidian     |
-| `HYPER+C` | Claude       |
-| `HYPER+T` | Thunderbird  |
-| `HYPER+S` | Signal       |
-| `HYPER+A` | KeePassXC    |
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER+T` | Terminal (foot) | |
+| `SUPER+W` | Navigateur (zen-browser) | ★ |
+| `SUPER+C` | Éditeur (zed) | ★ |
+| `SUPER+E` | Explorateur de fichiers (thunar) | |
+| `SUPER+G` | Steam — ws | ★ |
+| `SUPER+O` | Obsidian — ws | ★ |
+| `HYPER+C` | Claude — ws | ★ |
+| `HYPER+T` | Thunderbird — ws | ★ |
+| `HYPER+S` | Signal — ws | ★ |
+| `HYPER+A` | KeePassXC — ws | ★ |
+| `HYPER+N` | zennotes | ★ |
+| `SUPER+D` | Discord (vesktop) | ★ |
+| `SUPER+M` | Spotify | ★ |
+| `SUPER+;` | Sélecteur d'emoji | ★ |
+| `SUPER+V` | Presse-papiers (historique) | |
+| `SUPER+Alt+V` | Presse-papiers (supprimer une entrée) | |
+| `Ctrl+Alt+V` | Réglages audio (pavucontrol) | |
 
-### Autres raccourcis
+### Fenêtres — focus & déplacement
 
-| Raccourci | Action                        |
-|-----------|-------------------------------|
-| `HYPER+N` | zennotes                      |
-| `SUPER+D` | Discord (vesktop)             |
-| `SUPER+M` | Spotify                       |
-| `SUPER+;` | Sélecteur d'emoji             |
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER + ←/→/↑/↓` | Déplacer le focus (direction) | |
+| `SUPER+Shift + ←/→/↑/↓` | Déplacer la fenêtre (direction) | |
+| `SUPER + clic gauche` glisser · `SUPER+Z` | Déplacer la fenêtre (souris) | |
+| `SUPER + clic droit` glisser · `SUPER+X` | Redimensionner (souris) | |
 
-Les bureaux se changent avec `SUPER+<chiffre>` (touches de la rangée du haut,
-compatibles AZERTY comme QWERTY).
+### Fenêtres — taille & état
+
+Touches AZERTY : `)` = à droite de `à` · `=` = bout de rangée · `*` = à droite de `ù`.
+
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER + )` / `SUPER + =` | Largeur − / + | ★ (−) |
+| `SUPER+Shift + )` / `SUPER+Shift + =` | Hauteur − / + | ★ (−) |
+| `SUPER+Alt + ←/→/↑/↓` | Redimensionner (flèches) | |
+| `Ctrl+Super + *` | Centrer la fenêtre | ★ |
+| `Ctrl+Super+Alt + *` | Redim. 55×70 % + centrer | ★ |
+| `SUPER+Alt + *` | Picture-in-picture | ★ |
+| `SUPER+P` | Épingler (pin) | |
+| `SUPER+F` | Plein écran | |
+| `SUPER+Alt+F` | Plein écran bordé | |
+| `SUPER+Alt+Espace` | Basculer flottant | |
+| `SUPER+Q` | Fermer la fenêtre | |
+
+Le `−`/`\*`/PiP sont **rebindés par keycode** pour rester joignables en AZERTY
+(le `\` d'origine de Caelestia = `AltGr+8`, inatteignable).
+
+### Groupes de fenêtres (onglets)
+
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER+,` | Créer / dissoudre un groupe | |
+| `SUPER + HYPER + ←/→/↑/↓` | Fusionner dans le groupe voisin (le crée si besoin) | ★ |
+| `HYPER + Tab` / `HYPER+Shift+Tab` | Onglet suivant / précédent | ★ |
+| `SUPER+U` | Sortir la fenêtre du groupe | |
+| `SUPER+Shift+,` | Verrouiller le groupe (stoppe l'ajout auto) | |
+| `Alt+Tab` · `Ctrl+Alt+Tab` | Cycler (défaut Caelestia) | |
+
+### Bureaux (workspaces)
+
+Rebindés **par keycode** (rangée du haut) → mêmes touches physiques en AZERTY et QWERTY.
+
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER + 1…0` | Aller au bureau | ★ |
+| `SUPER+Alt + 1…0` | Envoyer la fenêtre au bureau | ★ |
+| `Ctrl+Super + 1…0` | Aller au groupe de bureaux | ★ |
+| `Ctrl+Super+Alt + 1…0` | Envoyer la fenêtre au groupe | ★ |
+| `Ctrl+Super + ←/→` | Bureau précédent / suivant | |
+| `SUPER + molette` | Bureau − / + | |
+| `SUPER+Alt + Pg↑/Pg↓` | Envoyer la fenêtre bureau − / + | |
+| `Ctrl+Super+Shift + ↑/↓` | Envoyer vers special / vider | |
+
+### Special workspaces (bascules)
+
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER+S` | Scratchpad générique | |
+| `SUPER+B` | Moniteur système (défaut : `Ctrl+Shift+Échap`) | ★ |
+| `SUPER+R` | Todo | |
+
+### Captures & enregistrement
+
+| Raccourci | Action | |
+|-----------|--------|---|
+| `Impr.écran` | Capture | |
+| `SUPER+Shift+S` | Capture (gel de l'écran) | |
+| `SUPER+Shift+Alt+S` | Capture (sélection) | |
+| `SUPER+Shift+C` | Pipette de couleur | |
+| `Ctrl+Alt+R` | Enregistrer l'écran | |
+| `SUPER+Alt+R` | Enregistrer (avec son) | |
+| `SUPER+Shift+Alt+R` | Enregistrer (région) | |
+
+### Shell & système
+
+| Raccourci | Action | |
+|-----------|--------|---|
+| `SUPER` (appui bref) | Launcher | |
+| `SUPER+N` | Barre latérale (sidebar) | |
+| `SUPER+K` | Afficher les panneaux | |
+| `SUPER+L` | Verrouiller la session | |
+| `SUPER+Alt+L` | Restaurer le verrou | |
+| `Ctrl+Alt+Suppr` | Menu de session | |
+| `Ctrl+Alt+C` | Effacer les notifications | |
+| `SUPER+Shift+L` | Veille | |
+| `SUPER+Shift+M` | Couper le son | |
+| `Ctrl+Super+Espace` | Média lecture/pause | |
+| `Ctrl+Super + =` / `Ctrl+Super + )` | Média suivant / précédent | ★ (préc.) |
+| `SUPER+I` | Anti-veille (idle inhibit) | ★ |
+| `Ctrl+Super+Shift+R` | Tuer le shell | |
+| `Ctrl+Super+Alt+R` | Relancer le shell caelestia | |
+
+> **Caveat AZERTY connu** : `SUPER+6` (bureau 6) déclenche aussi le rétrécissement,
+> et `Ctrl+Super+6` (groupe 6) le média précédent — car en AZERTY la touche `6`
+> émet le keysym `-` utilisé par Caelestia. Non corrigé à ce jour.
 
 ### Ajouter un special workspace
 

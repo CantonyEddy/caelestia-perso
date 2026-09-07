@@ -118,4 +118,38 @@ hl.bind("CTRL + SUPER + ALT + code:51", hl.dsp.window.center())
 -- est déjà joignable et sans conflit en AZERTY (cf. hypr-vars.lua). Un code:59
 -- collisionnerait avec "SUPER + semicolon" (emoji).
 
+-- ============================================================
+-- Groupes de fenêtres (onglets) : fusion + navigation
+-- ============================================================
+-- Caelestia ne fournit AUCUN bind pour faire entrer une fenêtre DÉJÀ ouverte dans
+-- un groupe (SUPER+SHIFT+flèches = movewindow, déplace juste la tuile). On ajoute
+-- donc la fusion et la navigation d'onglets via l'API Lua NATIVE de Hyprland
+-- (hl.dsp.*). NB : surtout PAS `hyprctl dispatch ...` ici — dans une config Lua,
+-- hyprctl repasse par le pont Lua (hl.dispatch) et échoue avec la syntaxe conf.
+--
+-- IMPORTANT :
+--  * "SUPER + SHIFT + flèches" (déplacer la tuile) et "SUPER + ALT + flèches"
+--    (resize) sont CONSERVÉS tels quels (on ne les touche pas).
+--  * On ÉVITE tout combo "SHIFT + ALT" (réservé à grp:alt_shift_toggle = bascule
+--    de disposition clavier, cf. input.lua).
+--  * Fusion = SUPER + couche HYPER (Caps Lock, via keyd) + flèches, routées en
+--    F18-F21 -> zéro conflit (cf. bloc HYPER + keyd) :
+--      F18 -> Linux 188 -> code:196   (SUPER + HYPER + gauche)
+--      F19 -> Linux 189 -> code:197   (SUPER + HYPER + droite)
+--      F20 -> Linux 190 -> code:198   (SUPER + HYPER + haut)
+--      F21 -> Linux 191 -> code:199   (SUPER + HYPER + bas)
+
+-- Fusionner la fenêtre active dans le groupe voisin (into_or_create_group : crée
+-- le groupe si la fenêtre voisine n'en est pas encore un -> pas besoin de Super+,)
+hl.bind("SUPER + code:196", hl.dsp.window.move({ into_or_create_group = "left" }))  -- SUPER + HYPER + gauche
+hl.bind("SUPER + code:197", hl.dsp.window.move({ into_or_create_group = "right" })) -- SUPER + HYPER + droite
+hl.bind("SUPER + code:198", hl.dsp.window.move({ into_or_create_group = "up" }))    -- SUPER + HYPER + haut
+hl.bind("SUPER + code:199", hl.dsp.window.move({ into_or_create_group = "down" }))  -- SUPER + HYPER + bas
+
+-- Naviguer entre les onglets du groupe (couche HYPER + Tab -> F22 = code:200) :
+--   HYPER + Tab         -> onglet suivant  (group.next = membre suivant)
+--   HYPER + Shift + Tab -> onglet précédent (group.prev = membre précédent)
+hl.bind("code:200", hl.dsp.group.next(), { repeating = true })
+hl.bind("SHIFT + code:200", hl.dsp.group.prev(), { repeating = true })
+
 return true
