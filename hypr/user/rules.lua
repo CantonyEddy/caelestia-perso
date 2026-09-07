@@ -27,4 +27,10 @@ hl.window_rule({ match = { tag = "ws_thunderbird" }, workspace = "special:thunde
 hl.window_rule({ match = { tag = "ws_signal" },      workspace = "special:signal" })
 hl.window_rule({ match = { tag = "ws_keepassxc" },   workspace = "special:keepassxc" })
 
+-- Cheat-sheet des raccourcis (HYPER+K) : fenêtre foot 'caelestia-keybinds',
+-- flottante et centrée. La TAILLE (55x70 %) est fixée par le script via
+-- foot --window-size-pixels (les tailles en % de la window rule ne sont pas
+-- appliquées de façon fiable ici). Voir keybinds.lua + scripts/keybinds-menu.sh.
+hl.window_rule({ match = { class = "caelestia-keybinds" }, float = true, center = true })
+
 return true

@@ -50,6 +50,14 @@ hl.bind("code:193", hl.dsp.exec_cmd(appws .. " org.mozilla.Thunderbird thunderbi
 hl.bind("code:194", hl.dsp.exec_cmd(appws .. " signal signal uwsm app -- signal-desktop")) -- HYPER + S : Signal (special ws)
 hl.bind("code:195", hl.dsp.exec_cmd(appws .. " org.keepassxc.KeePassXC keepassxc uwsm app -- keepassxc")) -- HYPER + A : KeePassXC
 
+-- HYPER + K : cheat-sheet des raccourcis (façon Omarchy). keyd envoie K en F23
+-- (code:201). On ouvre une fenêtre foot 'caelestia-keybinds' qui lance fzf sur
+-- scripts/keybinds.tsv ; une window rule (user/rules.lua) la flotte/centre à 55x70 %.
+--   F23 -> Linux 193 -> code:201
+-- Le script calcule la taille (55x70 % du moniteur) et lance foot lui-même ;
+-- la window rule ne fait que flotter/centrer (les tailles en % n'y passent pas).
+hl.bind("code:201", hl.dsp.exec_cmd("bash $HOME/.local/share/caelestia-perso/scripts/keybinds-menu.sh"))
+
 -- ============================================================
 -- Workspaces par KEYCODE (compatible AZERTY + QWERTY, tout clavier)
 -- ============================================================

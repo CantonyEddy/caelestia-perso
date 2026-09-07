@@ -1,0 +1,75 @@
+# keybinds.tsv — source de la cheat-sheet (HYPER+K).
+# Format : CATÉGORIE 	 TOUCHES 	 action   (les '	' sont convertis en TAB à l'écriture).
+# Lignes vides et # ignorées. ★ = perso (override/ajout) ; reste = défaut Caelestia.
+Applications	SUPER + T	Terminal (foot)
+Applications	SUPER + W	Navigateur — zen-browser ★
+Applications	SUPER + C	Éditeur — zed ★
+Applications	SUPER + E	Explorateur de fichiers — thunar
+Applications	SUPER + G	Steam (special ws) ★
+Applications	SUPER + O	Obsidian (special ws) ★
+Applications	HYPER + C	Claude (special ws) ★
+Applications	HYPER + T	Thunderbird (special ws) ★
+Applications	HYPER + S	Signal (special ws) ★
+Applications	HYPER + A	KeePassXC (special ws) ★
+Applications	HYPER + N	zennotes ★
+Applications	HYPER + K	Cette cheat-sheet ★
+Applications	SUPER + D	Discord — vesktop ★
+Applications	SUPER + M	Spotify ★
+Applications	SUPER + ;	Sélecteur d'emoji ★
+Applications	SUPER + V	Presse-papiers (historique)
+Applications	SUPER + Alt + V	Presse-papiers (supprimer une entrée)
+Applications	Ctrl + Alt + V	Réglages audio (pavucontrol)
+Fenêtres	SUPER + ←/→/↑/↓	Déplacer le focus (direction)
+Fenêtres	SUPER + Shift + ←/→/↑/↓	Déplacer la fenêtre (direction)
+Fenêtres	SUPER + clic gauche · SUPER + Z	Déplacer la fenêtre (souris)
+Fenêtres	SUPER + clic droit · SUPER + X	Redimensionner (souris)
+Fenêtres	SUPER + ) / SUPER + =	Largeur − / + ★
+Fenêtres	SUPER + Shift + ) / =	Hauteur − / + ★
+Fenêtres	SUPER + Alt + ←/→/↑/↓	Redimensionner (flèches)
+Fenêtres	Ctrl + Super + *	Centrer la fenêtre ★
+Fenêtres	Ctrl + Super + Alt + *	Redim. 55×70 % + centrer ★
+Fenêtres	SUPER + Alt + *	Picture-in-picture ★
+Fenêtres	SUPER + P	Épingler (pin)
+Fenêtres	SUPER + F	Plein écran
+Fenêtres	SUPER + Alt + F	Plein écran bordé
+Fenêtres	SUPER + Alt + Espace	Basculer flottant
+Fenêtres	SUPER + Q	Fermer la fenêtre
+Groupes (onglets)	SUPER + ,	Créer / dissoudre un groupe
+Groupes (onglets)	SUPER + HYPER + ←/→/↑/↓	Fusionner dans le groupe voisin (crée si besoin) ★
+Groupes (onglets)	HYPER + Tab / HYPER + Shift + Tab	Onglet suivant / précédent ★
+Groupes (onglets)	SUPER + U	Sortir la fenêtre du groupe
+Groupes (onglets)	SUPER + Shift + ,	Verrouiller le groupe
+Groupes (onglets)	Alt + Tab · Ctrl + Alt + Tab	Naviguer/cycler (défaut Caelestia)
+Bureaux	SUPER + 1…0	Aller au bureau ★
+Bureaux	SUPER + Alt + 1…0	Envoyer la fenêtre au bureau ★
+Bureaux	Ctrl + Super + 1…0	Aller au groupe de bureaux ★
+Bureaux	Ctrl + Super + Alt + 1…0	Envoyer la fenêtre au groupe ★
+Bureaux	Ctrl + Super + ←/→	Bureau précédent / suivant
+Bureaux	SUPER + molette	Bureau − / +
+Bureaux	SUPER + Alt + Pg↑/Pg↓	Envoyer la fenêtre bureau − / +
+Bureaux	Ctrl + Super + Shift + ↑/↓	Envoyer vers special / vider
+Special workspaces	SUPER + S	Scratchpad générique
+Special workspaces	SUPER + B	Moniteur système ★
+Special workspaces	SUPER + R	Todo
+Captures	Impr. écran	Capture d'écran
+Captures	SUPER + Shift + S	Capture (gel de l'écran)
+Captures	SUPER + Shift + Alt + S	Capture (sélection)
+Captures	SUPER + Shift + C	Pipette de couleur
+Captures	Ctrl + Alt + R	Enregistrer l'écran
+Captures	SUPER + Alt + R	Enregistrer (avec son)
+Captures	SUPER + Shift + Alt + R	Enregistrer (région)
+Système	SUPER (appui bref)	Launcher
+Système	SUPER + K	Afficher les panneaux
+Système	SUPER + N	Barre latérale (sidebar)
+Système	SUPER + L	Verrouiller la session
+Système	SUPER + Alt + L	Restaurer le verrou
+Système	Ctrl + Alt + Suppr	Menu de session
+Système	Ctrl + Alt + C	Effacer les notifications
+Système	SUPER + Shift + L	Veille
+Système	SUPER + Shift + M	Couper le son
+Système	Ctrl + Super + Espace	Média lecture/pause
+Système	Ctrl + Super + =	Média suivant
+Système	Ctrl + Super + )	Média précédent ★
+Système	SUPER + I	Anti-veille (idle inhibit) ★
+Système	Ctrl + Super + Shift + R	Tuer le shell
+Système	Ctrl + Super + Alt + R	Relancer le shell caelestia

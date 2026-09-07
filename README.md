@@ -79,6 +79,7 @@ raccourci les **lance** si absentes, sinon **affiche/cache** leur fenêtre.
 | `HYPER+S` | Signal — ws | ★ |
 | `HYPER+A` | KeePassXC — ws | ★ |
 | `HYPER+N` | zennotes | ★ |
+| `HYPER+K` | Aide-mémoire des raccourcis (cette fiche) | ★ |
 | `SUPER+D` | Discord (vesktop) | ★ |
 | `SUPER+M` | Spotify | ★ |
 | `SUPER+;` | Sélecteur d'emoji | ★ |
@@ -184,6 +185,28 @@ Rebindés **par keycode** (rangée du haut) → mêmes touches physiques en AZER
 > **Caveat AZERTY connu** : `SUPER+6` (bureau 6) déclenche aussi le rétrécissement,
 > et `Ctrl+Super+6` (groupe 6) le média précédent — car en AZERTY la touche `6`
 > émet le keysym `-` utilisé par Caelestia. Non corrigé à ce jour.
+
+### Aide-mémoire des raccourcis (`HYPER+K`)
+
+`HYPER+K` ouvre une **cheat-sheet** de tous les raccourcis dans une fenêtre
+flottante centrée (55×70 %), avec une **barre de recherche** (fzf) pour filtrer.
+C'est purement informatif : `Échap` (ou `Entrée`) referme la fenêtre.
+
+- la liste vit dans [`scripts/keybinds.tsv`](scripts/keybinds.tsv)
+  (format `CATÉGORIE <TAB> TOUCHES <TAB> action`) et s'affiche **groupée par catégories**
+  (en-têtes colorés) — pour l'éditer, il suffit de modifier ce fichier ;
+- fond **translucide + flou** de Caelestia, comme le terminal (aucun override d'alpha) ;
+- le rendu est fait par [`scripts/keybinds-menu.sh`](scripts/keybinds-menu.sh) (foot + fzf) ;
+- une window rule dans `hypr/user/rules.lua` **flotte + centre** la fenêtre (app-id
+  `caelestia-keybinds`), et le script fixe la **taille** à 55×70 % du moniteur focus
+  via `foot --window-size-pixels` (les tailles en % de la window rule ne passent pas
+  ici de façon fiable). keyd envoie `K` de la couche HYPER en `F23`.
+- les **couleurs** de fzf sont en **indices ANSI** (pas en hex), comme le prompt
+  Starship : caelestia remappe la palette en direct, donc le menu **se recolore**
+  avec le scheme (ton wallpaper).
+
+Dépend de **fzf** et **jq** (ajoutés aux dépendances d'`install.sh`) et de foot
+(fourni par Caelestia).
 
 ### Ajouter un special workspace
 

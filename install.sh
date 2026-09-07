@@ -20,6 +20,8 @@ DEPS=(
   "uwsm:uwsm"                         # requis : lancement des apps (uwsm app -- …)
   "keyd:keyd"                         # requis : couche HYPER (Caps Lock)
   "fuzzel:fuzzel"                     # launcher
+  "fzf:fzf"                           # recherche floue (cheat-sheet HYPER+K)
+  "jq:jq"                             # calcul taille fenêtre cheat-sheet (55x70 %)
   "cava:cava"                         # visualiseur audio
   "htop:htop"                         # moniteur système
   "zeditor:zed"                       # éditeur Zed (le binaire s'appelle zeditor)
