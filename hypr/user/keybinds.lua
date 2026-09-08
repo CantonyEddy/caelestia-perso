@@ -154,10 +154,10 @@ hl.bind("SUPER + code:197", hl.dsp.window.move({ into_or_create_group = "right" 
 hl.bind("SUPER + code:198", hl.dsp.window.move({ into_or_create_group = "up" }))    -- SUPER + HYPER + haut
 hl.bind("SUPER + code:199", hl.dsp.window.move({ into_or_create_group = "down" }))  -- SUPER + HYPER + bas
 
--- Naviguer entre les onglets du groupe (couche HYPER + Tab -> F22 = code:200) :
---   HYPER + Tab         -> onglet suivant  (group.next = membre suivant)
---   HYPER + Shift + Tab -> onglet précédent (group.prev = membre précédent)
-hl.bind("code:200", hl.dsp.group.next(), { repeating = true })
-hl.bind("SHIFT + code:200", hl.dsp.group.prev(), { repeating = true })
+-- Naviguer entre les onglets du groupe :
+--   SUPER + Tab         -> onglet suivant  (group.next = membre suivant)
+--   SUPER + Shift + Tab -> onglet précédent (group.prev = membre précédent)
+hl.bind("SUPER + Tab", hl.dsp.group.next(), { repeating = true })
+hl.bind("SUPER + SHIFT + Tab", hl.dsp.group.prev(), { repeating = true })
 
 return true

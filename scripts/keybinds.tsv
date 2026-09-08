@@ -36,7 +36,7 @@ Fenêtres	SUPER + Alt + Espace	Basculer flottant
 Fenêtres	SUPER + Q	Fermer la fenêtre
 Groupes (onglets)	SUPER + ,	Créer / dissoudre un groupe
 Groupes (onglets)	SUPER + HYPER + ←/→/↑/↓	Fusionner dans le groupe voisin (crée si besoin) ★
-Groupes (onglets)	HYPER + Tab / HYPER + Shift + Tab	Onglet suivant / précédent ★
+Groupes (onglets)	SUPER + Tab / SUPER + Shift + Tab	Onglet suivant / précédent ★
 Groupes (onglets)	SUPER + U	Sortir la fenêtre du groupe
 Groupes (onglets)	SUPER + Shift + ,	Verrouiller le groupe
 Groupes (onglets)	Alt + Tab · Ctrl + Alt + Tab	Naviguer/cycler (défaut Caelestia)

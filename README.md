@@ -123,7 +123,7 @@ Le `−`/`\*`/PiP sont **rebindés par keycode** pour rester joignables en AZERT
 |-----------|--------|---|
 | `SUPER+,` | Créer / dissoudre un groupe | |
 | `SUPER + HYPER + ←/→/↑/↓` | Fusionner dans le groupe voisin (le crée si besoin) | ★ |
-| `HYPER + Tab` / `HYPER+Shift+Tab` | Onglet suivant / précédent | ★ |
+| `SUPER + Tab` / `SUPER+Shift+Tab` | Onglet suivant / précédent | ★ |
 | `SUPER+U` | Sortir la fenêtre du groupe | |
 | `SUPER+Shift+,` | Verrouiller le groupe (stoppe l'ajout auto) | |
 | `Alt+Tab` · `Ctrl+Alt+Tab` | Cycler (défaut Caelestia) | |
