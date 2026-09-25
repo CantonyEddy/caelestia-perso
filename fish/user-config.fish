@@ -20,6 +20,16 @@ set -gx STARSHIP_CONFIG $HOME/.local/share/caelestia-perso/config/starship.toml
 # set -gx EDITOR nvim
 # set -gx PATH $HOME/.local/bin $PATH
 
+# --- Plugins vendorisés (fish/plugins/, chargés ici, sans Fisher) ---
+# autopair.fish : ferme auto () [] {} "" '' , saute le fermant déjà présent,
+# Backspace entre une paire vide supprime les deux. Cf. plugins/autopair/VENDOR.md
+set -l autopair_dir $HOME/.local/share/caelestia-perso/fish/plugins/autopair
+if test -d $autopair_dir
+    contains -- $autopair_dir/functions $fish_function_path
+        or set -p fish_function_path $autopair_dir/functions
+    source $autopair_dir/conf.d/autopair.fish
+end
+
 # --- Abréviations / alias ---
 # abbr v nvim
 # abbr dc 'docker compose'

@@ -52,6 +52,7 @@ hypr/
     └── …              # env, general, misc, animations, decoration, group,
                        #   execs, gestures, scrolling (templates désactivés)
 fish/user-config.fish  # alias/env fish, sourcé par Caelestia (hook officiel)
+fish/plugins/autopair/ # plugin autopair.fish vendorisé (MIT), chargé par user-config.fish
 shell/shell.json       # config Quickshell (JSON, hors Lua)
 shell/monitors/<écran>/shell.json  # surcharges par écran
 ```
