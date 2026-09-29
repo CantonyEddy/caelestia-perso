@@ -303,6 +303,9 @@ Idempotent. Pour chaque cible : symlink déjà correct → rien ; fichier/dossie
 - `copy_root()` : copie via `sudo` vers `/etc` (SDDM et keyd), avec backup et
   idempotence (`cmp` avant recopie).
 
+Une cible déjà posée par Home Manager (lien vers `/nix/store`) est laissée telle
+quelle (`hm_managed`). Voir « Intégration Nix / Home Manager ».
+
 ## Fonctionnement d'`uninstall.sh`
 
 Miroir d'`install.sh`, sans restaurer les `.bak` (Caelestia régénère ses défauts).
@@ -319,6 +322,58 @@ Le retrait SDDM est **opt-in** (`--sddm`) car il touche au chemin de boot/login 
 retirer `/etc/sddm/hyprland-greeter.conf` et les drop-ins `/etc/sddm.conf.d/` peut
 supprimer l'écran de login. Un `--dry-run` liste ce qui serait fait sans rien
 modifier. Les `.bak-<date>` d'`install.sh` ne sont pas nettoyés (choix manuel).
+
+## Intégration Nix / Home Manager (optionnelle)
+
+Deuxième façon de déployer, **à côté** d'`install.sh` (qui reste la référence :
+un utilisateur sans Nix ne voit aucune différence).
+
+```
+flake.nix              # inputs : nixpkgs, home-manager, caelestia-dots/shell
+nix/home.nix           # module commun = équivalent de la section link d'install.sh
+nix/hosts/fixe.nix     # overrides par écran de chaque machine
+nix/hosts/framework.nix
+```
+
+**Périmètre (hybride).** Caelestia ne fournit officiellement pour Nix que le
+**shell + CLI** (`homeManagerModules.default` → `programs.caelestia`). Les
+dotfiles de base (Hyprland Lua…) restent déployés par copie par le CLI
+(`caelestia install`), comme sans Nix. Répartition :
+
+| Géré par        | Quoi |
+|-----------------|------|
+| pacman / paru   | Hyprland, SDDM, keyd, uwsm, pilotes GPU, apps graphiques |
+| Home Manager    | caelestia-shell + CLI, symlinks de l'override, outils CLI (fuzzel, fzf, jq, cava, htop) |
+| CLI Caelestia   | dotfiles de base (`~/.local/state/caelestia/dots/` → copie) |
+| `install.sh`    | /etc (keyd, SDDM), dépendances pacman/AUR, applis |
+
+**Choix techniques.**
+
+- `mkOutOfStoreSymlink` : HM pose `~/.config/… → /nix/store/…-hm_… → repo`. On
+  édite le repo, l'effet est immédiat (pas de rebuild), comme avec `install.sh`.
+  Conséquence : le repo **doit** être cloné dans `~/.local/share/caelestia-perso`.
+- `programs.caelestia.settings` **non utilisé** : `shell.json` reste le fichier du
+  repo (le module n'écrit `shell.json` que si `settings` est non vide).
+- `systemd.enable = false` : la conf Hyprland de Caelestia lance déjà le shell
+  (évite deux instances).
+- `targets.genericLinux.enable` : Arch n'est pas NixOS → pilotes GPU pour les
+  apps Qt/OpenGL de Nix (lancer une fois le `sudo …/non-nixos-gpu-setup` que HM
+  indique ; NVIDIA : renseigner `targets.genericLinux.gpu.nvidia.{version,sha256}`).
+- PATH : `systemd.user.sessionVariables` (→ `environment.d`, session uwsm) +
+  `fish_add_path` gardé par `test -d` dans `user-config.fish` (sans effet sans Nix).
+
+**Cohabitation avec les scripts.** `install.sh` et `uninstall.sh` détectent un
+lien Home Manager (cible directe dans `/nix/store`) et le **laissent** (`⌂`).
+Donc : Home Manager d'abord, puis `./install.sh` pour la partie système. Tout
+nouveau symlink doit être ajouté **aux deux endroits** (`install.sh` + `nix/home.nix`).
+
+**Pièges.**
+
+- Un flake ne voit que les fichiers **suivis par git** : `git add` avant `switch`.
+- Écran de verrouillage : le PAM compilé par Nix peut échouer hors NixOS → tester
+  le lock après le 1er switch.
+- `caelestia update` ne met plus à jour le shell : c'est `nix flake update` +
+  `home-manager switch`.
 
 ## Mémo syntaxe Lua Hyprland
 

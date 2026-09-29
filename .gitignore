@@ -11,3 +11,7 @@ config/**/*.caelestia.*
 # Env de session MACHINE-LOCALE (chemins PCI GPU, etc.) — propre à chaque
 # machine, ne doit PAS être poussé aux autres utilisateurs du repo.
 config/env.d/*.conf
+
+# Nix : lien de sortie de `nix build`
+result
+result-*

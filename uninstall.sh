@@ -5,7 +5,8 @@
 # Ne touche JAMAIS au repo caelestia lui-même, ni aux paquets installés.
 #
 # Zones traitées :
-#   1. Symlinks perso dans ~/.config/ (retirés seulement s'ils pointent vers CE repo)
+#   1. Symlinks perso dans ~/.config/ (retirés seulement s'ils pointent vers CE repo ;
+#      ceux posés par Home Manager sont laissés : les retirer via nix/home.nix)
 #   2. /etc/keyd/default.conf                (retiré si identique à la version du repo)
 #   3. SDDM /etc/…  -> NON par défaut (chemin de boot/login critique).
 #      Activer explicitement avec --sddm. Chaque fichier est sauvegardé en .bak
@@ -38,7 +39,10 @@ run() { if (( DRY )); then echo "    [dry-run] $*"; else eval "$@"; fi; }
 # Un fichier réel (non-symlink) ou un lien vers ailleurs est laissé intact.
 unlink_repo() {
   local dst="$1" target
-  if [[ -L "$dst" ]]; then
+  if [[ -L "$dst" && "$(readlink "$dst")" == /nix/store/* ]]; then
+    # Lien Home Manager : c'est HM qui le gère (retirer de nix/home.nix + switch)
+    echo "  ⌂ $dst (géré par Home Manager → laissé)"
+  elif [[ -L "$dst" ]]; then
     target="$(readlink -f "$dst" 2>/dev/null || true)"
     if [[ "$target" == "$REPO"/* ]]; then
       run "rm -f '$dst'"

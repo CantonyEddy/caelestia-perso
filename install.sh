@@ -3,6 +3,12 @@
 # Version Lua (Caelestia >= migration Hyprland 0.55 / CLI v1.1.0).
 # Idempotent. Ne touche JAMAIS au repo caelestia lui-même.
 #
+# Deux modes, détectés automatiquement (aucun flag) :
+#  - SANS Nix (défaut)   : pose tous les symlinks + /etc + dépendances.
+#  - AVEC Home Manager   : un symlink déjà posé par HM (lien vers /nix/store,
+#    cf. nix/home.nix) est laissé tel quel ; le script ne fait plus que les
+#    dépendances pacman/AUR, /etc (keyd, SDDM) et les applis. Lancer HM AVANT.
+#
 # Pour chaque cible :
 #  - déjà le bon symlink     -> ne fait rien
 #  - fichier/dossier réel    -> sauvegarde en .bak-AAAAMMJJ-HHMMSS puis symlink
@@ -13,6 +19,11 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 DEST="$CFG/caelestia"
 STAMP="$(date +%Y%m%d-%H%M%S)"
+
+# Outils installés par Home Manager visibles pour check_deps (sans effet sans Nix)
+for p in "$HOME/.nix-profile/bin" "/etc/profiles/per-user/$USER/bin"; do
+  [[ -d "$p" && ":$PATH:" != *":$p:"* ]] && PATH="$p:$PATH"
+done
 
 # Dépendances nécessaires aux configs versionnées, au format "binaire:paquet".
 # Installées automatiquement si manquantes. Les paquets AUR nécessitent paru/yay.
@@ -44,8 +55,15 @@ APPS=(
   "keepassxc:keepassxc"               # HYPER+A
 )
 
+# hm_managed : vrai si la cible est un symlink posé par Home Manager (→ /nix/store).
+hm_managed() { [[ -L "$1" && "$(readlink "$1")" == /nix/store/* ]]; }
+
 link() {
   local src="$1" dst="$2"
+  if hm_managed "$dst"; then
+    echo "  ⌂ $dst (géré par Home Manager, laissé)"
+    return
+  fi
   mkdir -p "$(dirname "$dst")"
   if [[ -L "$dst" && "$(readlink -f "$dst")" == "$(readlink -f "$src")" ]]; then
     echo "  = $dst (déjà à jour)"
@@ -152,6 +170,14 @@ select_apps() {
     echo "  ! Ni paru ni yay trouvé. Installe manuellement : ${to[*]}"
   fi
 }
+
+if hm_managed "$DEST/hypr-user.lua"; then
+  echo "Mode Home Manager détecté : les symlinks gérés par HM ne sont pas touchés."
+  # caelestia-shell/cli viennent du flake Nix : pas de doublon AUR/pacman.
+  dup="$(pacman -Qq caelestia-shell caelestia-cli quickshell quickshell-git 2>/dev/null || true)"
+  [[ -n "$dup" ]] && echo "  ! Doublon avec Nix, à retirer : sudo pacman -Rns $(echo $dup)"
+  echo
+fi
 
 echo "Vérification des dépendances :"
 check_deps
