@@ -254,7 +254,7 @@ installé (flakes activés), Home Manager peut fournir **caelestia-shell + CLI**
 ```sh
 git clone git@github.com:CantonyEddy/caelestia-perso.git ~/.local/share/caelestia-perso
 cd ~/.local/share/caelestia-perso
-nix run home-manager -- switch --flake .#ryu@<machine> -b hm-bak   # 1er switch
+nix run home-manager -- switch --flake .#<user>@<machine> -b hm-bak   # 1er switch
 ./install.sh      # détecte HM : ne fait plus que /etc (keyd, SDDM) + dépendances
 ```
 
@@ -262,7 +262,7 @@ nix run home-manager -- switch --flake .#ryu@<machine> -b hm-bak   # 1er switch
 - Ne **pas** installer `caelestia-shell` / `caelestia-cli` / `quickshell` depuis
   l'AUR en parallèle (doublon ; `install.sh` le signale).
 - Les dotfiles de base Caelestia restent déployés par `caelestia install`.
-- Mise à jour du shell : `nix flake update && home-manager switch --flake .#ryu@<machine>`.
+- Mise à jour du shell : `nix flake update && home-manager switch --flake .#<user>@<machine>`.
 
 Détails dans [ARCHITECTURE.md](ARCHITECTURE.md#intégration-nix--home-manager-optionnelle).
 

@@ -5,7 +5,7 @@
   # les symlinks de l'override ; ./install.sh ne fait alors plus que la partie
   # système (/etc : keyd, SDDM) + dépendances pacman/AUR.
   #
-  #   home-manager switch --flake ~/.local/share/caelestia-perso#ryu@<host>
+  #   home-manager switch --flake ~/.local/share/caelestia-perso#<user>@<host>
   description = "caelestia-perso — overrides Caelestia via Home Manager (Arch + Nix)";
 
   inputs = {
@@ -32,8 +32,9 @@
       };
     in {
       homeConfigurations = {
-        "ryu@fixe"      = mkHome { host = "fixe"; };
-        "ryu@framework" = mkHome { host = "framework"; };
+        # "<utilisateur>@<machine>" : l'utilisateur Linux diffère selon la machine
+        "jin@fixe"      = mkHome { user = "jin"; host = "fixe"; };
+        "ryu@framework" = mkHome { user = "ryu"; host = "framework"; };
       };
     };
 }
