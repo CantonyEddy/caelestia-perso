@@ -245,6 +245,27 @@ sudo systemctl enable --now keyd
 - demande le **mot de passe sudo** pour déployer keyd (`/etc/keyd/`) et SDDM
   (`/etc/sddm.conf.d/`).
 
+### Variante Nix / Home Manager (optionnelle)
+
+Sans Nix, **rien ne change** : la méthode ci-dessus reste la référence. Si Nix est
+installé (flakes activés), Home Manager peut fournir **caelestia-shell + CLI**
+(flake officiel `caelestia-dots/shell`) et poser les symlinks de l'override :
+
+```sh
+git clone git@github.com:CantonyEddy/caelestia-perso.git ~/.local/share/caelestia-perso
+cd ~/.local/share/caelestia-perso
+nix run home-manager -- switch --flake .#ryu@<machine> -b hm-bak   # 1er switch
+./install.sh      # détecte HM : ne fait plus que /etc (keyd, SDDM) + dépendances
+```
+
+- Configs par machine dans `nix/hosts/` (`fixe`, `framework`) : écrans surtout.
+- Ne **pas** installer `caelestia-shell` / `caelestia-cli` / `quickshell` depuis
+  l'AUR en parallèle (doublon ; `install.sh` le signale).
+- Les dotfiles de base Caelestia restent déployés par `caelestia install`.
+- Mise à jour du shell : `nix flake update && home-manager switch --flake .#ryu@<machine>`.
+
+Détails dans [ARCHITECTURE.md](ARCHITECTURE.md#intégration-nix--home-manager-optionnelle).
+
 ## Wallpapers
 
 Les images **ne sont pas incluses** dans ce dépôt. Le picker caelestia les lit

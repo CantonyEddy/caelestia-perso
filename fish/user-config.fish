@@ -19,6 +19,10 @@ alias v "nvim"
 set -gx STARSHIP_CONFIG $HOME/.local/share/caelestia-perso/config/starship.toml
 # set -gx EDITOR nvim
 # set -gx PATH $HOME/.local/bin $PATH
+# Nix / Home Manager : binaires Nix dans le PATH (ignoré si Nix absent)
+for p in $HOME/.nix-profile/bin /nix/var/nix/profiles/default/bin
+    test -d $p; and fish_add_path -g $p
+end
 
 # --- Plugins vendorisés (fish/plugins/, chargés ici, sans Fisher) ---
 # autopair.fish : ferme auto () [] {} "" '' , saute le fermant déjà présent,
