@@ -68,7 +68,8 @@ config/
 ├── fuzzel/fuzzel.ini
 ├── cava/config
 ├── htop/htoprc
-└── zed/settings.json + keymap.json
+├── zed/settings.json + keymap.json
+└── solaar/config.yaml + rules.yaml   # souris Logitech MX Master 3
 ```
 
 (Spicetify n'est PAS dans cette liste : `config-xpui.ini` n'est plus versionné —
@@ -86,6 +87,7 @@ par copie** (voir `manifest.toml`). Comparaison faite :
 | foot, fish, fastfetch, micro | identiques au défaut Caelestia | **non versionnés**  |
 | btop                       | perso mais géré par Caelestia   | **non versionné**   |
 | fuzzel, cava, htop, zed    | absents du clone → 100% perso   | **versionnés**      |
+| solaar                     | absent du clone → 100% perso    | **versionné**       |
 | spicetify/config-xpui.ini  | réécrit par spicetify (état machine) | **non versionné** (`spicetify config` dans install.sh) |
 
 Versionner un fichier géré par Caelestia créerait un conflit : au prochain
@@ -293,6 +295,65 @@ groupes d'actions, non nécessaires tant que la couche HYPER suffit.
 
 Les workspaces sont par ailleurs réécrits **par keycode** (`code:10..19`) pour
 rester universels AZERTY/QWERTY, en réutilisant `fn.wsaction` de Caelestia.
+
+## Souris Logitech MX Master 3 (Solaar)
+
+**Pourquoi Solaar et pas Piper.** Piper/libratbag écrit dans la **mémoire
+onboard** de la souris (profils). La G502 en a une → Piper fonctionne ; la MX
+Master 3 **n'en a pas** → libratbag échoue (« The device has been reset to a
+previous state »). Solaar, lui, applique les réglages **côté logiciel** à chaque
+connexion de l'appareil : c'est un **service qui doit tourner en permanence**.
+Répartition : Piper → G502, Solaar → MX Master 3. **logiops exclu** (deux démons
+qui pilotent la même souris via HID++ se marchent dessus) ; `install.sh` prévient
+si `logid` est actif.
+
+**Lancement.** `hypr/user/execs.lua` (activé dans `hypr-user.lua`) :
+
+```lua
+hl.on("hyprland.start", function()
+    hl.exec_cmd("uwsm app -- solaar --window=hide")
+end)
+```
+
+Équivalent Lua de `exec-once` (même mécanisme que `hyprland/execs.lua` de
+Caelestia) : le callback ne tourne qu'au démarrage du compositeur, **pas à
+chaque `hyprctl reload`**. Le paquet Arch `solaar` ne fournit **pas** d'entrée
+XDG autostart (`/etc/xdg/autostart`) → pas de double lancement par uwsm.
+
+**Fichiers versionnés** (`config/solaar/` → `~/.config/solaar/`, symlinks) :
+
+- `config.yaml` : réglages par appareil (liste YAML, 1 entrée par souris,
+  identifiée par `_modelId`/`_unitId`). Pour la MX Master 3 : `divert-keys`
+  `{195: 1}` = CID `0x00C3` (*Mouse Gesture Button*) **diverted** vers Solaar,
+  `dpi`, `smart-shift`, `scroll-ratchet`, molette hi-res…
+- `rules.yaml` : règles du Rule Editor (documents YAML séparés par `---`) :
+
+  ```yaml
+  - Key: [Mouse Gesture Button, pressed]
+  - KeyPress: [Super_L, depress]
+  ---
+  - Key: [Mouse Gesture Button, released]
+  - KeyPress: [Super_L, release]
+  ```
+
+  → bouton pouce **maintenu = Super maintenu** → `Super + clic-glisser` Hyprland.
+
+**Écriture à travers le symlink.** Solaar sauvegarde avec `open(path, "w")`
+(pas de fichier temporaire + `rename`) → il **suit le symlink** et écrit dans le
+repo, le lien n'est pas remplacé par un fichier réel. Idem via Home Manager
+(`~/.config → /nix/store → repo`). Conséquence : `config.yaml` bouge quand Solaar
+met à jour de l'état (`_battery`, `_config_cookie`, `_absent`…) ou quand un nouvel
+appareil Logitech est détecté (ex. l'entrée G502 est présente) → relire le diff
+avant de committer.
+
+**uinput (Wayland).** La simulation de touches (`KeyPress`) passe par
+`/dev/uinput` (pas de XTest sous Wayland). Accès donné par la règle udev du
+paquet (`/usr/lib/udev/rules.d/42-logitech-unify-permissions.rules`, `uaccess`),
+effective **après reconnexion de session**. Rien à versionner côté `/etc`.
+
+**Nix.** Le paquet reste sur **pacman** (les règles udev doivent être installées
+au niveau système, ce que Home Manager ne fait pas sur Arch) ; seuls les deux
+symlinks sont dans `nix/home.nix`.
 
 ## Fonctionnement d'`install.sh`
 

@@ -38,6 +38,7 @@ DEPS=(
   "zeditor:zed"                       # éditeur Zed (le binaire s'appelle zeditor)
   "spicetify:spicetify-cli"           # thème Spotify (AUR)
   "sddm:sddm"                         # display manager
+  "solaar:solaar"                     # souris Logitech MX Master 3 (réglages + règles)
 )
 
 # Applications lancées par les raccourcis (binaire:paquet). Proposées à
@@ -207,6 +208,15 @@ link "$REPO/config/cava/config"                      "$CFG/cava/config"
 link "$REPO/config/htop/htoprc"                      "$CFG/htop/htoprc"
 link "$REPO/config/zed/settings.json"                "$CFG/zed/settings.json"
 link "$REPO/config/zed/keymap.json"                  "$CFG/zed/keymap.json"
+# Solaar (MX Master 3) : réglages appareil + règles du Rule Editor. Solaar
+# réécrit ces fichiers en suivant le symlink (open(…, "w")) → les changements
+# faits dans l'UI Solaar arrivent directement dans le repo.
+link "$REPO/config/solaar/config.yaml"               "$CFG/solaar/config.yaml"
+link "$REPO/config/solaar/rules.yaml"                "$CFG/solaar/rules.yaml"
+# logiops (logid) et Solaar se disputent la souris : un seul des deux.
+if systemctl is-enabled --quiet logid 2>/dev/null || pgrep -x logid >/dev/null 2>&1; then
+  echo "  ! logiops (logid) actif : conflit avec Solaar → sudo systemctl disable --now logid"
+fi
 # Spicetify : on ne symlinke PAS config-xpui.ini. spicetify le réécrit à chaque
 # `apply` (prefs_path/spotify_path auto-détectés + [Backup] version = ÉTAT MACHINE,
 # non portable) → via un symlink ça polluerait le repo. On applique juste les
