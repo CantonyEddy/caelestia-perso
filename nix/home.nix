@@ -47,6 +47,9 @@ in {
     "htop/htoprc".source         = link "config/htop/htoprc";
     "zed/settings.json".source   = link "config/zed/settings.json";
     "zed/keymap.json".source     = link "config/zed/keymap.json";
+    # Solaar : le paquet reste sur pacman (règles udev /dev/uinput système)
+    "solaar/config.yaml".source  = link "config/solaar/config.yaml";
+    "solaar/rules.yaml".source   = link "config/solaar/rules.yaml";
   };
 
   # Outils CLI des dépendances (les apps graphiques/GPU restent sur pacman).

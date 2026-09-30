@@ -95,6 +95,8 @@ unlink_repo "$CFG/cava/config"
 unlink_repo "$CFG/htop/htoprc"
 unlink_repo "$CFG/zed/settings.json"
 unlink_repo "$CFG/zed/keymap.json"
+unlink_repo "$CFG/solaar/config.yaml"
+unlink_repo "$CFG/solaar/rules.yaml"
 # (spicetify/config-xpui.ini n'est plus symlinké : géré localement par spicetify)
 unlink_repo "$CFG/mimeapps.list"
 # environment.d/ : liens éventuels vers config/env.d/*.conf
