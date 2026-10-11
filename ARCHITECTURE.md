@@ -217,55 +217,68 @@ exec fish                                                        # recharge le p
 
 ## Config SDDM (`config/sddm/conf.d/`)
 
-La config **fonctionnelle** de SDDM est versionnée en drop-ins (SDDM lit tous les
-`*.conf` de `/etc/sddm.conf.d/` par ordre alpha, fusionnés par section ; le
-préfixe numérique gère la priorité) :
+La config **fonctionnelle** de SDDM est versionnée en drop-ins. ⚠️ SDDM lit
+**tous les fichiers** de `/etc/sddm.conf.d/` — **sans filtre d'extension** —
+par ordre alphabétique, puis `/etc/sddm.conf` ; pour une même clé, **le dernier
+lu gagne** (vérifié dans `ConfigReader.cpp` de SDDM). Un `20-wayland.conf.bak`
+est donc lu APRÈS `20-wayland.conf` et l'écrase.
 
 ```
 config/sddm/
 ├── conf.d/                    (INI démon SDDM -> /etc/sddm.conf.d/)
 │   ├── 10-general.conf     [General]   DisplayServer=wayland, Numlock=on
-│   ├── 20-wayland.conf     [Wayland]   CompositorCommand=...
+│   ├── 20-wayland.conf     [Wayland]   CompositorCommand=… hyprland-greeter.lua
 │   ├── 30-autologin.conf   [Autologin] (placeholder commenté)
 │   └── 40-users.conf       [Users]     (placeholder commenté)
-├── hyprland-greeter.conf      (hyprlang -> /etc/sddm/)  ← DÉPLOYÉ
-└── hyprland-greeter.lua       (Lua, migration 0.57)     ← PAS déployé
+├── hyprland-greeter.lua       (Lua -> /etc/sddm/)      ← CONFIG ACTIVE
+└── hyprland-greeter.conf      (hyprlang -> /etc/sddm/) ← filet de secours
 ```
 
-`hyprland-greeter.conf` est la config **Hyprland** (format hyprlang, pas INI) du
-compositeur lancé derrière l'écran de login — référencée par le
-`CompositorCommand` de `20-wayland.conf`. Elle règle notamment `kb_layout = fr`
-(clavier AZERTY au login). Elle est déployée vers `/etc/sddm/` (destination
-distincte de `/etc/sddm.conf.d/`, car format et consommateur différents : SDDM
-lit tout `sddm.conf.d/*.conf` comme du INI et planterait sur du hyprlang).
+`hyprland-greeter.lua` est la config **Hyprland** du compositeur lancé derrière
+l'écran de login (`kb_layout = fr`, numlock, fond noir…), référencée par le
+`CompositorCommand` de `20-wayland.conf`. Les deux greeters sont déployés dans
+`/etc/sddm/` (hors de `sddm.conf.d/`, que SDDM parse comme du INI).
 
-Contrairement au reste, ces fichiers sont **copiés** (pas symlinkés) vers `/etc`
-via `sudo` (fonction `copy_root` d'`install.sh`) : `/etc` reste indépendant du
-home (pas de fichier lu par root pointant vers un home utilisateur). Contrepartie :
-après toute modif d'un drop-in, **relancer `install.sh`** pour resynchroniser `/etc`.
+Ces fichiers sont **copiés** (pas symlinkés) vers `/etc` via `sudo` (`copy_root`) :
+`/etc` reste indépendant du home. Après toute modif, **relancer `install.sh`**.
 
-### 🔴 Migration du greeter avant Hyprland 0.57
+### Ce que fait `install.sh` (ordre important, chemin de boot)
 
-Hyprland 0.57 **supprime le format `.conf`** (upstream `a9902ea6`, « config: remove
-legacy config support », présent sur `main`, pas dans 0.56.x) : tout `--config`
-sera lu comme du Lua. `hyprland-greeter.conf` ne chargera alors plus.
-`hyprland-greeter.lua` est la traduction 1:1, autonome (pas de `require`, pas de
-HOME). Il n'est **ni copié par install.sh ni référencé** par `20-wayland.conf`.
+1. `purge_dropin_baks` : déplace tout `*.bak*` / `*.save` / `*~` de
+   `/etc/sddm.conf.d/` vers `/var/backups/caelestia-perso/<date>/`.
+2. Dépose **les deux** greeters (`.lua` et `.conf`) dans `/etc/sddm/`.
+3. Déploie les drop-ins. Pour `20-wayland.conf` : si
+   `Hyprland --verify-config --config /etc/sddm/hyprland-greeter.lua` échoue (ou
+   Hyprland absent), il déploie une variante pointant sur le `.conf` → on ne
+   pointe **jamais** vers un fichier absent ou invalide.
+4. Affiche le `CompositorCommand` effectif.
 
-Rappel : une 1re tentative de bascule en `.lua` (été 2026) a donné un écran noir
-au boot. Cause jamais établie → on teste hors du chemin de boot :
+`copy_root` ne crée **plus jamais** de `.bak` à côté de la cible : les sauvegardes
+vont dans `/var/backups/caelestia-perso/<date>/<chemin complet>`.
 
-1. Snapshot du système.
-2. `sudo install -m 0644 config/sddm/hyprland-greeter.lua /etc/sddm/hyprland-greeter.lua`
-   (ajout seul, le `.conf` et `20-wayland.conf` restent intacts).
-3. `sudo -u sddm Hyprland --verify-config --config /etc/sddm/hyprland-greeter.lua`
-   → doit sortir sans erreur (vérifie aussi que l'utilisateur sddm peut le lire).
-4. Test imbriqué depuis la session : `Hyprland --config /etc/sddm/hyprland-greeter.lua`
-   (s'ouvre dans une fenêtre ; vérifier fond noir + AZERTY, puis fermer).
-5. Seulement alors : `CompositorCommand=... --config /etc/sddm/hyprland-greeter.lua`
-   dans `20-wayland.conf`, ajout du `copy_root` dans `install.sh`, **garder le
-   `.conf`** en place, reboot avec un TTY (`Ctrl+Alt+F3`) prêt pour revenir en
-   arrière. En attendant : ne pas installer Hyprland 0.57.
+### Post-mortem de l'écran noir (août 2026) — cause établie en oct. 2026
+
+Ce n'était **pas** le Lua. Chronologie reconstituée depuis `/etc/sddm.conf.d/` :
+
+1. 4 août 16h37 : `install.sh` déploie `20-wayland.conf` → `.lua` et sauvegarde
+   l'ancien en `20-wayland.conf.bak-20260804-163721` (→ `.conf`) **dans le même
+   dossier**. SDDM lit ce `.bak` en dernier → le greeter reste en réalité sur le
+   `.conf`. L'AZERTY + numlock au login (présents dans les deux fichiers) a fait
+   croire que le `.lua` était chargé.
+2. 17h30 : le `.conf` est supprimé. `start-hyprland -- --config …greeter.conf`
+   vise un fichier absent → Hyprland quitte immédiatement (`main.cpp`, « Config
+   file is invalid ») → écran noir.
+3. 11 août : la restauration redéploie `20-wayland.conf` → `.conf` et sauvegarde
+   la version `.lua` en `20-wayland.conf.bak-20260811-171237`… lue en dernier.
+   **Depuis le 11 août, le greeter tourne donc très probablement déjà en Lua**
+   (à confirmer : `journalctl -b -u sddm | grep -i greeter`).
+
+### Hyprland 0.57
+
+0.57 **supprime le format `.conf`** (upstream `a9902ea6`, sur `main`, absent de
+0.56.x) : tout `--config` est lu en Lua. Le greeter en `.lua` est donc requis ;
+le `.conf` ne sert plus de secours qu'en ≤ 0.56. Avant la 0.57, vérifier que
+`install.sh` affiche bien `Greeter actif : … hyprland-greeter.lua`.
 
 **L'esthétique reste hors repo** : `theme.conf` (`Current=nier-automata`) n'est
 jamais versionné ni écrasé par `install.sh`.

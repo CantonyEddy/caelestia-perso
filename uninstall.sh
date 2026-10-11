@@ -66,9 +66,10 @@ remove_root_if_ours() {
     return
   fi
   if sudo cmp -s "$src" "$dst" 2>/dev/null; then
-    run "sudo cp -a '$dst' '$dst.bak-$STAMP'"
+    run "sudo mkdir -p '/var/backups/caelestia-perso/$STAMP$(dirname "$dst")'"
+    run "sudo cp -a '$dst' '/var/backups/caelestia-perso/$STAMP$dst'"
     run "sudo rm -f '$dst'"
-    echo "  ✗ $dst (retiré, sauvegarde .bak-$STAMP)"
+    echo "  ✗ $dst (retiré, sauvegarde dans /var/backups/caelestia-perso/$STAMP)"
   else
     echo "  = $dst (diffère du repo → laissé, à vérifier à la main)"
   fi
@@ -128,15 +129,16 @@ if (( DO_SDDM )); then
       remove_root_if_ours "$f" "/etc/sddm.conf.d/$(basename "$f")"
     done
   fi
-  [[ -f "$REPO/config/sddm/hyprland-greeter.conf" ]] && \
-    remove_root_if_ours "$REPO/config/sddm/hyprland-greeter.conf" "/etc/sddm/hyprland-greeter.conf"
+  for g in hyprland-greeter.lua hyprland-greeter.conf; do
+    [[ -f "$REPO/config/sddm/$g" ]] && remove_root_if_ours "$REPO/config/sddm/$g" "/etc/sddm/$g"
+  done
 else
   echo "  (ignoré — relancer avec --sddm pour l'inclure)"
-  echo "  Rappel : le greeter tourne via /etc/sddm/hyprland-greeter.conf référencé"
+  echo "  Rappel : le greeter tourne via /etc/sddm/hyprland-greeter.lua (ou .conf) référencé"
   echo "  par CompositorCommand de 20-wayland.conf. Le retirer peut casser le login."
 fi
 
 echo
 echo "Terminé.$( (( DRY )) && echo ' (dry-run)')"
-echo "Les .bak-<date> créés par install.sh sont laissés en place : à supprimer à la main quand tu es sûr."
+echo "Sauvegardes /etc : /var/backups/caelestia-perso/<date>/ (à supprimer à la main quand tu es sûr)."
 (( DO_SDDM == 0 )) && echo "Config SDDM non touchée. Recharge Hyprland si besoin : hyprctl reload"

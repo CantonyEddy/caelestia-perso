@@ -1,13 +1,9 @@
 -- hyprland-greeter.lua — config Hyprland du greeter SDDM, version LUA.
 --
--- ⚠️  PAS ENCORE DÉPLOYÉ. install.sh ne copie toujours QUE le .conf, et
--- 20-wayland.conf pointe toujours sur le .conf. Ce fichier est la migration
--- PRÉPARÉE pour Hyprland 0.57, qui supprime le format .conf (commit upstream
--- a9902ea6 « config: remove legacy config support ») : à partir de la 0.57, tout
--- --config est lu comme du Lua -> le .conf actuel ne chargera plus.
---
--- Bascule UNIQUEMENT après la procédure de test d'ARCHITECTURE.md § Config SDDM
--- (verify-config en tant qu'utilisateur sddm + test imbriqué), snapshot pris.
+-- Config ACTIVE du greeter : 20-wayland.conf pointe ici. Hyprland 0.57 supprime
+-- le format .conf (upstream a9902ea6) -> le Lua est obligatoire à partir de là.
+-- install.sh valide ce fichier (Hyprland --verify-config) avant de basculer, et
+-- retombe sur hyprland-greeter.conf (toujours déployé) en cas d'échec.
 --
 -- Traduction 1:1 de hyprland-greeter.conf. Volontairement autonome : aucun
 -- require(), aucune dépendance au HOME (le greeter tourne sous l'utilisateur sddm).
