@@ -1,27 +1,15 @@
 -- user/keybinds.lua — mes raccourcis perso (migré depuis l'ancien keybinds.conf)
 --
--- Notes de migration :
+-- Notes :
 --  * app2unit a été supprimé par Caelestia -> on lance via "uwsm app -- <cmd>".
---  * Ce fichier est chargé APRÈS les binds de Caelestia (require hypr-user en
---    dernier), donc un hl.bind sur une touche déjà prise l'ÉCRASE (dernier gagne).
---    C'est ainsi qu'on réassigne Super+M / Super+D sans "unbind".
---  * $kbCommunication / $kbMusic (anciennes variables) = Super+D / Super+M chez
---    Caelestia. On les réassigne directement à nos apps.
+--  * ⚠️ Hyprland déclenche TOUS les binds qui correspondent à une combinaison
+--    (pas de « dernier gagne »). Ne JAMAIS rebinder ici une combinaison déjà prise
+--    par Caelestia : redéfinir sa variable kb* dans hypr-vars.lua à la place.
+--    Ce fichier ne contient donc que des combinaisons LIBRES chez Caelestia.
+--  * SUPER+D / SUPER+M = toggles natifs Caelestia (communication / music) ; les
+--    apps (vesktop, spotify) sont déclarées dans config/caelestia/cli.json.
 
--- Special workspaces perso : "lance si absente, sinon montre/cache".
--- app-ws.sh lance l'app si absente (une window rule l'envoie dans special:<nom>)
--- puis `caelestia toggle <nom>` affiche/cache le workspace (toggle compatible
--- avec le dispatch Lua de Caelestia, contrairement à `hyprctl dispatch`).
-local appws = "bash $HOME/.local/share/caelestia-perso/scripts/app-ws.sh"
-hl.bind("SUPER + G", hl.dsp.exec_cmd(appws .. " steam steam uwsm app -- steam"))
-hl.bind("SUPER + O", hl.dsp.exec_cmd(appws .. " md.obsidian.Obsidian obsidian uwsm app -- obsidian"))
-
--- Override des toggles Caelestia : musique (Super+M) et communication (Super+D)
-hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- vesktop")) -- ex-$kbCommunication
-hl.bind("SUPER + M", hl.dsp.exec_cmd("uwsm app -- spotify")) -- ex-$kbMusic
-
--- Sélecteur d'emoji : tue une instance existante de fuzzel sinon lance caelestia emoji
-hl.bind("SUPER + semicolon", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p"))
+-- Apps à special workspace (SUPER+G/O, HYPER+C/T/S/A) : voir user/special.lua.
 
 -- Anti-veille : bascule un verrou Wayland idle-inhibit (respecté par Hyprland,
 -- donc stoppe la mise en veille / le verrou d'écran auto). Pour les vidéos.
@@ -44,11 +32,7 @@ hl.bind("SUPER + I", hl.dsp.exec_cmd("bash $HOME/.local/share/caelestia-perso/sc
 --   F16 -> Linux 186 -> code:194
 --   F17 -> Linux 187 -> code:195
 -- Correspondance lettre -> F-key définie dans config/keyd/default.conf.
-hl.bind("code:191", hl.dsp.exec_cmd(appws .. " com.anthropic.Claude claude uwsm app -- claude-desktop")) -- HYPER + C : Claude (special ws)
 hl.bind("code:192", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
-hl.bind("code:193", hl.dsp.exec_cmd(appws .. " org.mozilla.Thunderbird thunderbird uwsm app -- thunderbird")) -- HYPER + T : Thunderbird (special ws)
-hl.bind("code:194", hl.dsp.exec_cmd(appws .. " signal signal uwsm app -- signal-desktop")) -- HYPER + S : Signal (special ws)
-hl.bind("code:195", hl.dsp.exec_cmd(appws .. " org.keepassxc.KeePassXC keepassxc uwsm app -- keepassxc")) -- HYPER + A : KeePassXC
 
 -- HYPER + K : cheat-sheet des raccourcis (façon Omarchy). keyd envoie K en F23
 -- (code:201). On ouvre une fenêtre foot 'caelestia-keybinds' qui lance fzf sur
@@ -66,8 +50,10 @@ hl.bind("code:201", hl.dsp.exec_cmd("bash $HOME/.local/share/caelestia-perso/scr
 -- symboles 1..0 (qui en AZERTY donnent & é " ...).
 --
 -- IMPORTANT : on réutilise LEUR fonction fn.wsaction pour préserver la logique
--- per-monitor (perMonitorWorkspaces). On ne change QUE la touche.
--- Chargé après leur keybinds.lua -> ces binds écrasent les leurs (même combo).
+-- des groupes de bureaux. On ne change QUE la touche.
+-- Les binds keysym de Caelestia ("SUPER + 1"…) restent actifs (non pilotables par
+-- variable) : injoignables en AZERTY (1 = Shift+&), et en disposition US les deux
+-- se déclenchent avec la MÊME action -> sans effet visible.
 
 local vars = require("variables")
 local fn   = require("utils.functions") -- déplacé depuis hyprland.functions (update caelestia)
@@ -84,14 +70,11 @@ end
 -- Binds SYMBOLES réécrits en KEYCODE (parité QWERTY -> AZERTY)
 -- ============================================================
 -- Caelestia écrit ces raccourcis pour un clavier QWERTY. En AZERTY (kb_layout=fr)
--- les keysyms -, =, \, "," tombent ailleurs, voire sont injoignables :
---   backslash = AltGr+8  -> les binds "Center window", "PiP" et "resize 55x70"
---   étaient donc IMPOSSIBLES à déclencher en AZERTY.
--- On rebind par KEYCODE physique pour retrouver la POSITION du QWERTY documenté
--- (le screenshot des raccourcis), quelle que soit la disposition. Chargé après
--- leur keybinds.lua : nos combos identiques écrasent les leurs ; les anciens
--- binds keysym qui subsistent tombent sur des touches AZERTY inoffensives ou
--- injoignables (donc sans effet parasite).
+-- les keysyms -, \, "." tombent ailleurs, voire sont injoignables
+-- (backslash = AltGr+8 ; "Minus" = touche 6 -> collision avec le bureau 6).
+-- On les rebind par KEYCODE physique pour retrouver la POSITION du QWERTY
+-- documenté. Depuis Caelestia f6d5250 (juil. 2026) ces binds sont tous pilotés
+-- par variables kb* -> on les redéfinit dans hypr-vars.lua (aucun résidu).
 --
 -- Rappel : code:<n> = keycode Linux + 8.
 --   code:20 = '-' QWERTY (KEY_MINUS 12)     -> ')' en AZERTY FR
@@ -105,22 +88,10 @@ end
 -- entrerait en collision. Ces binds fonctionnent déjà comme lettres, et le drag
 -- souris (SUPER + LMB/RMB) marche quelle que soit la disposition.
 
--- Redimensionnement fenêtre : on ne réécrit QUE le côté '-' (rétrécir).
--- '=' (agrandir) est à la MÊME position physique en AZERTY (KEY_EQUAL) : le keysym
--- "SUPER + Equal" de Caelestia marche déjà -> ajouter code:21 DOUBLERAIT l'action.
--- '-' en revanche : le keysym "minus" tombe sur KEY_6 en AZERTY ; code:20 (KEY_MINUS)
--- remet le rétrécir juste à gauche de l'agrandir (paire adjacente, comme en QWERTY).
-hl.bind("SUPER + code:20", fn.resize_active_window(-10, 0), { repeating = true })         -- largeur -
-hl.bind("SUPER + SHIFT + code:20", fn.resize_active_window(0, -10), { repeating = true }) -- hauteur -
-
--- Média précédent (ex CTRL + SUPER + Minus). "suivant" (CTRL+SUPER+Equal) est déjà
--- bien placé (KEY_EQUAL) -> pas de code:21 (sinon double déclenchement).
-hl.bind("CTRL + SUPER + code:20", hl.dsp.global("caelestia:mediaPrev"), { locked = true })
-
--- Centrer / redim. 55x70 + centrer (ex CTRL + SUPER + \ et CTRL + SUPER + ALT + \)
-hl.bind("CTRL + SUPER + code:51", hl.dsp.window.center())
-hl.bind("CTRL + SUPER + ALT + code:51", hl.dsp.window.resize(fn.resize_by_screen(55, 70)))
-hl.bind("CTRL + SUPER + ALT + code:51", hl.dsp.window.center())
+-- Resize « − », média précédent, centrer, 55x70, PiP et emoji : désormais
+-- redéfinis par VARIABLES dans hypr-vars.lua (kbWindowDecreaseWidth/Height,
+-- kbMediaPrev, kbCenterWindow, kbNormalizeWindow, kbWindowPip, kbEmoji).
+-- Plus aucun hl.bind ici -> plus de double déclenchement avec la touche 6.
 
 -- NB : group toggle/lock ("SUPER [+SHIFT] + Comma") NON réécrits : le keysym ','
 -- est déjà joignable et sans conflit en AZERTY (cf. hypr-vars.lua). Un code:59

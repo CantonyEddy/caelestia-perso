@@ -40,6 +40,7 @@ in {
     "caelestia/user".source             = link "hypr/user";
     "caelestia/user-config.fish".source = link "fish/user-config.fish";
     "caelestia/shell.json".source       = link "shell/shell.json";
+    "caelestia/cli.json".source         = link "config/caelestia/cli.json";
 
     # --- Apps pur perso (~/.config/<app>/) ---
     "fuzzel/fuzzel.ini".source   = link "config/fuzzel/fuzzel.ini";
@@ -47,6 +48,9 @@ in {
     "htop/htoprc".source         = link "config/htop/htoprc";
     "zed/settings.json".source   = link "config/zed/settings.json";
     "zed/keymap.json".source     = link "config/zed/keymap.json";
+    # Solaar : le paquet reste sur pacman (règles udev /dev/uinput système)
+    # solaar/config.yaml = état machine : graine copiée par install.sh, pas géré ici.
+    "solaar/rules.yaml".source   = link "config/solaar/rules.yaml";
   };
 
   # Outils CLI des dépendances (les apps graphiques/GPU restent sur pacman).

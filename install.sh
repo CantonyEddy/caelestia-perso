@@ -53,6 +53,7 @@ APPS=(
   "vesktop:vesktop"                   # SUPER+D (AUR : vesktop ou vesktop-bin)
   "spotify:spotify"                   # SUPER+M (AUR)
   "keepassxc:keepassxc"               # HYPER+A
+  "solaar:solaar"                     # souris Logitech (MX Master 3) — optionnel
 )
 
 # hm_managed : vrai si la cible est un symlink posé par Home Manager (→ /nix/store).
@@ -77,9 +78,17 @@ link() {
   echo "  → $dst"
 }
 
+# Sauvegardes des fichiers /etc remplacés : HORS des dossiers de config.
+# ⚠️ JAMAIS de .bak à côté de la cible : SDDM lit TOUS les fichiers de
+# /etc/sddm.conf.d/ (aucun filtre sur l'extension, tri alphabétique, le dernier
+# gagne) -> un "20-wayland.conf.bak-…" y écrasait silencieusement le
+# 20-wayland.conf déployé. C'est la vraie cause de l'écran noir d'août 2026.
+ROOT_BACKUP="/var/backups/caelestia-perso/$STAMP"
+
 # copy_root : copie un fichier vers une cible root-owned (ex. /etc) via sudo.
-# Idempotent (ne recopie pas si identique), sauvegarde l'existant en .bak-<date>.
-# Ne touche JAMAIS aux fichiers non listés (ex. theme.conf de SDDM).
+# Idempotent (ne recopie pas si identique), sauvegarde l'existant dans
+# $ROOT_BACKUP/<chemin complet>. Ne touche JAMAIS aux fichiers non listés
+# (ex. theme.conf de SDDM).
 copy_root() {
   local src="$1" dst="$2"
   if sudo cmp -s "$src" "$dst" 2>/dev/null; then
@@ -88,11 +97,27 @@ copy_root() {
   fi
   sudo mkdir -p "$(dirname "$dst")"
   if sudo test -e "$dst"; then
-    sudo cp -a "$dst" "$dst.bak-$STAMP"
-    echo "  ~ sauvegarde : $dst.bak-$STAMP"
+    sudo mkdir -p "$ROOT_BACKUP$(dirname "$dst")"
+    sudo cp -a "$dst" "$ROOT_BACKUP$dst"
+    echo "  ~ sauvegarde : $ROOT_BACKUP$dst"
   fi
   sudo install -m 0644 "$src" "$dst"
   echo "  → $dst"
+}
+
+# purge_dropin_baks : sort de /etc/sddm.conf.d/ les sauvegardes laissées par les
+# anciennes versions d'install.sh (*.bak*, *.save, *~) -> $ROOT_BACKUP. Elles
+# étaient lues par SDDM comme de la config active.
+purge_dropin_baks() {
+  local dir="$1" f found=0
+  sudo test -d "$dir" || return 0
+  while IFS= read -r -d '' f; do
+    found=1
+    sudo mkdir -p "$ROOT_BACKUP$dir"
+    sudo mv "$f" "$ROOT_BACKUP$dir/"
+    echo "  ~ sauvegarde parasite déplacée : $f -> $ROOT_BACKUP$dir/"
+  done < <(sudo find "$dir" -maxdepth 1 -type f \( -name '*.bak*' -o -name '*.save' -o -name '*~' \) -print0)
+  (( found )) || echo "  = $dir : aucune sauvegarde parasite"
 }
 
 # check_deps : vérifie chaque binaire, installe les paquets manquants via paru/yay.
@@ -189,6 +214,9 @@ link "$REPO/hypr/hypr-user.lua"                 "$DEST/hypr-user.lua"
 link "$REPO/hypr/user"                          "$DEST/user"
 link "$REPO/fish/user-config.fish"              "$DEST/user-config.fish"
 link "$REPO/shell/shell.json"                   "$DEST/shell.json"
+# Config CLI Caelestia : toggles SUPER+D (vesktop) / SUPER+M (spotify), lue à la
+# fois par la fonction Lua fn.toggle et par `caelestia toggle`.
+link "$REPO/config/caelestia/cli.json"          "$DEST/cli.json"
 link "$REPO/shell/monitors/eDP-1/shell.json"    "$DEST/monitors/eDP-1/shell.json"
 link "$REPO/shell/monitors/HDMI-A-1/shell.json" "$DEST/monitors/HDMI-A-1/shell.json"
 # Prompt Starship perso : rien à symlinker ici. La config (config/starship.toml,
@@ -207,6 +235,27 @@ link "$REPO/config/cava/config"                      "$CFG/cava/config"
 link "$REPO/config/htop/htoprc"                      "$CFG/htop/htoprc"
 link "$REPO/config/zed/settings.json"                "$CFG/zed/settings.json"
 link "$REPO/config/zed/keymap.json"                  "$CFG/zed/keymap.json"
+# Solaar (souris Logitech, optionnel) :
+#  - rules.yaml (règles du Rule Editor, portables) -> symlink ;
+#  - config.yaml = ÉTAT MACHINE (n° d'unité, cookie, batterie… réécrits en
+#    continu par Solaar) -> PAS de symlink (polluait le repo), seulement une
+#    graine copiée si absente. Même logique que spicetify/config-xpui.ini.
+link "$REPO/config/solaar/rules.yaml"                "$CFG/solaar/rules.yaml"
+scfg_solaar="$CFG/solaar/config.yaml"
+if [[ -L "$scfg_solaar" && "$(readlink -f "$scfg_solaar")" == "$REPO"/* ]]; then
+  cp --remove-destination "$(readlink -f "$scfg_solaar")" "$scfg_solaar"
+  echo "  ~ $scfg_solaar : ancien symlink remplacé par une copie locale"
+elif [[ ! -e "$scfg_solaar" ]] && ! hm_managed "$scfg_solaar"; then
+  mkdir -p "$(dirname "$scfg_solaar")"
+  cp "$REPO/config/solaar/config.yaml" "$scfg_solaar"
+  echo "  → $scfg_solaar (graine copiée)"
+else
+  echo "  = $scfg_solaar (local, laissé)"
+fi
+# logiops (logid) et Solaar se disputent la souris : un seul des deux.
+if systemctl is-enabled --quiet logid 2>/dev/null || pgrep -x logid >/dev/null 2>&1; then
+  echo "  ! logiops (logid) actif : conflit avec Solaar → sudo systemctl disable --now logid"
+fi
 # Spicetify : on ne symlinke PAS config-xpui.ini. spicetify le réécrit à chaque
 # `apply` (prefs_path/spotify_path auto-détectés + [Backup] version = ÉTAT MACHINE,
 # non portable) → via un symlink ça polluerait le repo. On applique juste les
@@ -252,21 +301,46 @@ else
 fi
 
 echo
-echo "Config SDDM (/etc/sddm.conf.d/, copie via sudo) :"
-# On COPIE (pas symlink) chaque drop-in vers /etc. theme.conf (esthétique) est
-# volontairement ignoré et jamais écrasé. Demande sudo une fois si besoin.
+echo "Config SDDM (/etc/sddm.conf.d/ + /etc/sddm/, copie via sudo) :"
+# Ordre IMPORTANT (chemin de boot) :
+#  1. purge des .bak parasites de sddm.conf.d (lus par SDDM comme de la config) ;
+#  2. dépôt des DEUX configs du greeter (.lua ET .conf) dans /etc/sddm/ — le
+#     .conf reste en filet de secours, jamais supprimé ;
+#  3. seulement ensuite les drop-ins. 20-wayland.conf pointe sur le .lua ; s'il
+#     n'est pas validé par `Hyprland --verify-config`, on déploie à la place une
+#     variante qui pointe sur le .conf (toujours bootable en Hyprland <= 0.56).
+# theme.conf (esthétique) est volontairement ignoré et jamais écrasé.
+GREETER_DIR="/etc/sddm"
+purge_dropin_baks "/etc/sddm.conf.d"
+for g in hyprland-greeter.lua hyprland-greeter.conf; do
+  [[ -f "$REPO/config/sddm/$g" ]] && copy_root "$REPO/config/sddm/$g" "$GREETER_DIR/$g"
+done
+
+greeter_lua_ok() {
+  sudo test -s "$GREETER_DIR/hyprland-greeter.lua" || return 1
+  command -v Hyprland >/dev/null 2>&1 || return 1
+  timeout 15 Hyprland --verify-config --config "$GREETER_DIR/hyprland-greeter.lua" >/dev/null 2>&1
+}
+
 if [[ -d "$REPO/config/sddm/conf.d" ]]; then
   for f in "$REPO/config/sddm/conf.d/"*.conf; do
     [[ -e "$f" ]] || continue
+    if [[ "$(basename "$f")" == "20-wayland.conf" ]] && ! greeter_lua_ok; then
+      echo "  ! hyprland-greeter.lua NON validé par Hyprland --verify-config :"
+      echo "    le greeter reste sur hyprland-greeter.conf (OK jusqu'à Hyprland 0.56)."
+      tmp="$(mktemp)"
+      sed 's#hyprland-greeter[.]lua#hyprland-greeter.conf#' "$f" > "$tmp"
+      grep -q '^CompositorCommand=.*hyprland-greeter[.]conf' "$tmp" || { echo "  ! variante .conf introuvable : 20-wayland.conf non modifié"; rm -f "$tmp"; continue; }
+      copy_root "$tmp" "/etc/sddm.conf.d/20-wayland.conf"
+      rm -f "$tmp"
+      continue
+    fi
     copy_root "$f" "/etc/sddm.conf.d/$(basename "$f")"
   done
 else
   echo "  (aucun fichier SDDM dans le repo, ignoré)"
 fi
-# Config Hyprland du greeter (format hyprlang, PAS du INI) -> /etc/sddm/ .
-# Destination distincte car référencée par CompositorCommand de 20-wayland.conf.
-[[ -f "$REPO/config/sddm/hyprland-greeter.conf" ]] && \
-  copy_root "$REPO/config/sddm/hyprland-greeter.conf" "/etc/sddm/hyprland-greeter.conf"
+echo "  Greeter actif : $(grep -h '^CompositorCommand' /etc/sddm.conf.d/*.conf 2>/dev/null | tail -1)"
 
 echo
 echo "Applications des raccourcis :"

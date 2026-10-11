@@ -19,7 +19,28 @@ en **Lua** (plus en hyprlang `.conf`). D'après `~/.config/hypr/hyprland.lua` :
   TABLE de données (`return { ... }`), fusionnée dans leurs variables.
 - ligne ~76 : `require("hypr-user")` (tout à la fin) → **hypr-user.lua** est du
   VRAI code Lua Hyprland (`hl.config`, `hl.bind`…), chargé après tout le reste,
-  donc ces réglages gagnent.
+  donc ces réglages gagnent — **sauf les keybinds** (voir ci-dessous).
+
+### ⚠️ Keybinds : pas de « dernier gagne »
+
+Vérifié dans le source de Hyprland 0.56 (`CKeybindManager::handleKeybinds`) :
+quand plusieurs `hl.bind` correspondent à la même combinaison, **ils se
+déclenchent tous**. Ajouter dans `user/keybinds.lua` un bind sur une touche déjà
+prise par Caelestia ne la remplace donc pas : les deux actions partent.
+
+Règle du repo :
+- raccourci **Caelestia à modifier** → redéfinir sa variable `kb*` dans
+  `hypr-vars.lua` (le bind d'origine n'est alors jamais créé). Depuis Caelestia
+  `f6d5250` (juil. 2026) quasiment tous leurs binds sont pilotés par variable ;
+- `user/keybinds.lua` → **uniquement des combinaisons libres** chez Caelestia ;
+- apps lancées par les toggles Caelestia (`SUPER+D`, `SUPER+M`…) →
+  `config/caelestia/cli.json`, section `toggles` (lue par la fonction Lua
+  `fn.toggle` et par `caelestia toggle`).
+
+Bugs que ça corrigeait (oct. 2026) : `SUPER+6` (= `-` en AZERTY) allait au bureau 6
+**et** rétrécissait la fenêtre ; `Ctrl+SUPER+6` changeait de groupe **et** passait
+au morceau précédent ; `SUPER+D`/`SUPER+M` faisaient le toggle **et** relançaient
+l'app.
 
 `package.path` inclut `~/.config/caelestia/?.lua`, donc depuis hypr-user.lua,
 `require("user.input")` charge `~/.config/caelestia/user/input.lua` (le dossier
@@ -68,7 +89,9 @@ config/
 ├── fuzzel/fuzzel.ini
 ├── cava/config
 ├── htop/htoprc
-└── zed/settings.json + keymap.json
+├── zed/settings.json + keymap.json
+├── solaar/rules.yaml (symlink) + config.yaml (graine copiée)  # souris Logitech, optionnel
+└── caelestia/cli.json                # -> ~/.config/caelestia/cli.json (toggles SUPER+D/M)
 ```
 
 (Spicetify n'est PAS dans cette liste : `config-xpui.ini` n'est plus versionné —
@@ -86,6 +109,7 @@ par copie** (voir `manifest.toml`). Comparaison faite :
 | foot, fish, fastfetch, micro | identiques au défaut Caelestia | **non versionnés**  |
 | btop                       | perso mais géré par Caelestia   | **non versionné**   |
 | fuzzel, cava, htop, zed    | absents du clone → 100% perso   | **versionnés**      |
+| solaar                     | absent du clone → 100% perso    | **versionné**       |
 | spicetify/config-xpui.ini  | réécrit par spicetify (état machine) | **non versionné** (`spicetify config` dans install.sh) |
 
 Versionner un fichier géré par Caelestia créerait un conflit : au prochain
@@ -193,31 +217,68 @@ exec fish                                                        # recharge le p
 
 ## Config SDDM (`config/sddm/conf.d/`)
 
-La config **fonctionnelle** de SDDM est versionnée en drop-ins (SDDM lit tous les
-`*.conf` de `/etc/sddm.conf.d/` par ordre alpha, fusionnés par section ; le
-préfixe numérique gère la priorité) :
+La config **fonctionnelle** de SDDM est versionnée en drop-ins. ⚠️ SDDM lit
+**tous les fichiers** de `/etc/sddm.conf.d/` — **sans filtre d'extension** —
+par ordre alphabétique, puis `/etc/sddm.conf` ; pour une même clé, **le dernier
+lu gagne** (vérifié dans `ConfigReader.cpp` de SDDM). Un `20-wayland.conf.bak`
+est donc lu APRÈS `20-wayland.conf` et l'écrase.
 
 ```
 config/sddm/
 ├── conf.d/                    (INI démon SDDM -> /etc/sddm.conf.d/)
 │   ├── 10-general.conf     [General]   DisplayServer=wayland, Numlock=on
-│   ├── 20-wayland.conf     [Wayland]   CompositorCommand=...
+│   ├── 20-wayland.conf     [Wayland]   CompositorCommand=… hyprland-greeter.lua
 │   ├── 30-autologin.conf   [Autologin] (placeholder commenté)
 │   └── 40-users.conf       [Users]     (placeholder commenté)
-└── hyprland-greeter.conf      (hyprlang -> /etc/sddm/)
+├── hyprland-greeter.lua       (Lua -> /etc/sddm/)      ← CONFIG ACTIVE
+└── hyprland-greeter.conf      (hyprlang -> /etc/sddm/) ← filet de secours
 ```
 
-`hyprland-greeter.conf` est la config **Hyprland** (format hyprlang, pas INI) du
-compositeur lancé derrière l'écran de login — référencée par le
-`CompositorCommand` de `20-wayland.conf`. Elle règle notamment `kb_layout = fr`
-(clavier AZERTY au login). Elle est déployée vers `/etc/sddm/` (destination
-distincte de `/etc/sddm.conf.d/`, car format et consommateur différents : SDDM
-lit tout `sddm.conf.d/*.conf` comme du INI et planterait sur du hyprlang).
+`hyprland-greeter.lua` est la config **Hyprland** du compositeur lancé derrière
+l'écran de login (`kb_layout = fr`, numlock, fond noir…), référencée par le
+`CompositorCommand` de `20-wayland.conf`. Les deux greeters sont déployés dans
+`/etc/sddm/` (hors de `sddm.conf.d/`, que SDDM parse comme du INI).
 
-Contrairement au reste, ces fichiers sont **copiés** (pas symlinkés) vers `/etc`
-via `sudo` (fonction `copy_root` d'`install.sh`) : `/etc` reste indépendant du
-home (pas de fichier lu par root pointant vers un home utilisateur). Contrepartie :
-après toute modif d'un drop-in, **relancer `install.sh`** pour resynchroniser `/etc`.
+Ces fichiers sont **copiés** (pas symlinkés) vers `/etc` via `sudo` (`copy_root`) :
+`/etc` reste indépendant du home. Après toute modif, **relancer `install.sh`**.
+
+### Ce que fait `install.sh` (ordre important, chemin de boot)
+
+1. `purge_dropin_baks` : déplace tout `*.bak*` / `*.save` / `*~` de
+   `/etc/sddm.conf.d/` vers `/var/backups/caelestia-perso/<date>/`.
+2. Dépose **les deux** greeters (`.lua` et `.conf`) dans `/etc/sddm/`.
+3. Déploie les drop-ins. Pour `20-wayland.conf` : si
+   `Hyprland --verify-config --config /etc/sddm/hyprland-greeter.lua` échoue (ou
+   Hyprland absent), il déploie une variante pointant sur le `.conf` → on ne
+   pointe **jamais** vers un fichier absent ou invalide.
+4. Affiche le `CompositorCommand` effectif.
+
+`copy_root` ne crée **plus jamais** de `.bak` à côté de la cible : les sauvegardes
+vont dans `/var/backups/caelestia-perso/<date>/<chemin complet>`.
+
+### Post-mortem de l'écran noir (août 2026) — cause établie en oct. 2026
+
+Ce n'était **pas** le Lua. Chronologie reconstituée depuis `/etc/sddm.conf.d/` :
+
+1. 4 août 16h37 : `install.sh` déploie `20-wayland.conf` → `.lua` et sauvegarde
+   l'ancien en `20-wayland.conf.bak-20260804-163721` (→ `.conf`) **dans le même
+   dossier**. SDDM lit ce `.bak` en dernier → le greeter reste en réalité sur le
+   `.conf`. L'AZERTY + numlock au login (présents dans les deux fichiers) a fait
+   croire que le `.lua` était chargé.
+2. 17h30 : le `.conf` est supprimé. `start-hyprland -- --config …greeter.conf`
+   vise un fichier absent → Hyprland quitte immédiatement (`main.cpp`, « Config
+   file is invalid ») → écran noir.
+3. 11 août : la restauration redéploie `20-wayland.conf` → `.conf` et sauvegarde
+   la version `.lua` en `20-wayland.conf.bak-20260811-171237`… lue en dernier.
+   **Depuis le 11 août, le greeter tourne donc très probablement déjà en Lua**
+   (à confirmer : `journalctl -b -u sddm | grep -i greeter`).
+
+### Hyprland 0.57
+
+0.57 **supprime le format `.conf`** (upstream `a9902ea6`, sur `main`, absent de
+0.56.x) : tout `--config` est lu en Lua. Le greeter en `.lua` est donc requis ;
+le `.conf` ne sert plus de secours qu'en ≤ 0.56. Avant la 0.57, vérifier que
+`install.sh` affiche bien `Greeter actif : … hyprland-greeter.lua`.
 
 **L'esthétique reste hors repo** : `theme.conf` (`Current=nier-automata`) n'est
 jamais versionné ni écrasé par `install.sh`.
@@ -258,26 +319,33 @@ Prérequis machine : `paru -S keyd && sudo systemctl enable --now keyd`.
 
 Certaines apps vivent dans un **special workspace** (scratchpad Hyprland) plutôt
 que dans les workspaces numérotés : Steam (`SUPER+G`), Obsidian (`SUPER+O`),
-Claude (`HYPER+C`).
+Claude (`HYPER+C`), Thunderbird (`HYPER+T`), Signal (`HYPER+S`), KeePassXC (`HYPER+A`).
 
-Le toggle passe par **`caelestia toggle <nom>`** (et non `hyprctl dispatch
-togglespecialworkspace`, qui échoue ici : la config Hyprland est en Lua →
-`hyprctl dispatch` est évalué comme du Lua). Mais `caelestia toggle` seul ne
-**lance pas** l'app absente. Trois ingrédients :
+**Source de vérité unique : `hypr/user/special.lua`** (oct. 2026). Une table
+`APPS` (`key`, `ws`, `class`, `cmd`) génère pour chaque app :
 
-- des **window rules par tags** (`user/rules.lua`) épinglent l'app à son scratchpad.
-  Depuis la réécriture des window rules (Hyprland 0.53+), l'assignation directe
-  `workspace = "special:x"` par classe ne marche plus ; on tague donc la fenêtre
-  par classe (`tag = "+ws_steam"`) puis, **après tous les taguages**, on envoie les
-  fenêtres taguées vers leur workspace (`match = { tag = "ws_steam" }, workspace = "special:steam"`) — même schéma que Caelestia ;
-- le script **`scripts/app-ws.sh <class> <ws> <cmd>`** : si l'app tourne →
-  `caelestia toggle <ws>` (montre/cache) ; sinon → il la lance (la rule la range
-  dans `special:<ws>`) puis `caelestia toggle <ws>` pour l'afficher ;
-- les **raccourcis** (`user/keybinds.lua`) appellent ce script.
+1. la règle de **tag** (`class` → `ws_<ws>`) ;
+2. après tous les taguages, la règle de **routage** (`ws_<ws>` → `special:<ws>`)
+   — schéma imposé par la réécriture des window rules (Hyprland 0.53+) ;
+3. le **raccourci** → `scripts/app-ws.sh <class> <ws> <cmd>`.
 
-Un seul raccourci fait donc tout : lancer si absente, montrer/cacher sinon.
-(Une piste plus intégrée existe — les toggles `cli.json` de la CLI Caelestia —
-mais son format exact n'a pas pu être fiabilisé, on s'en tient au script testé.)
+Avant, la classe était recopiée à trois endroits (`keybinds.lua` + 2 règles dans
+`rules.lua`) : un écart suffisait à faire décrocher l'app (Obsidian a changé de
+classe deux fois). La classe est maintenant convertie en regex **exacte et
+insensible à la casse** (`(?i)` + échappement) ; Hyprland compare les règles en
+`FullMatch` (RE2), donc `steam` ne capture **pas** les jeux `steam_app_123`.
+
+`scripts/app-ws.sh` (inchangé, testé) : si une fenêtre de la classe existe →
+`caelestia toggle <ws>` ; sinon il lance l'app, **attend** (≤ 8 s) qu'une fenêtre
+de la classe soit routée dans `special:<ws>`, puis toggle (anti-race avec
+`close_special_on_empty`). Le toggle passe par `caelestia toggle` et jamais par
+`hyprctl dispatch` (évalué comme du Lua dans cette config).
+
+Pourquoi pas les toggles natifs `cli.json` de Caelestia (utilisés pour SUPER+D/M) :
+leur détection est une **sous-chaîne sensible à la casse** (`string.find` /
+`in` Python) → `steam` capturerait les jeux et les y déplacerait, et la casse
+d'Obsidian casserait la détection. Ils montrent aussi le workspace vide AVANT
+la naissance de la fenêtre (la race qu'`app-ws.sh` évite).
 
 Quand la dernière fenêtre d'un special workspace se ferme, il se **referme tout
 seul** (au lieu de laisser un scratchpad vide affiché) grâce à l'option native
@@ -293,6 +361,67 @@ groupes d'actions, non nécessaires tant que la couche HYPER suffit.
 
 Les workspaces sont par ailleurs réécrits **par keycode** (`code:10..19`) pour
 rester universels AZERTY/QWERTY, en réutilisant `fn.wsaction` de Caelestia.
+
+## Souris Logitech MX Master 3 (Solaar)
+
+**Pourquoi Solaar et pas Piper.** Piper/libratbag écrit dans la **mémoire
+onboard** de la souris (profils). La G502 en a une → Piper fonctionne ; la MX
+Master 3 **n'en a pas** → libratbag échoue (« The device has been reset to a
+previous state »). Solaar, lui, applique les réglages **côté logiciel** à chaque
+connexion de l'appareil : c'est un **service qui doit tourner en permanence**.
+Répartition : Piper → G502, Solaar → MX Master 3. **logiops exclu** (deux démons
+qui pilotent la même souris via HID++ se marchent dessus) ; `install.sh` prévient
+si `logid` est actif.
+
+**Lancement.** `hypr/user/execs.lua` (activé dans `hypr-user.lua`) :
+
+```lua
+hl.on("hyprland.start", function()
+    hl.exec_cmd("command -v solaar >/dev/null && uwsm app -- solaar --window=hide")
+end)
+```
+
+Équivalent Lua de `exec-once` (même mécanisme que `hyprland/execs.lua` de
+Caelestia) : le callback ne tourne qu'au démarrage du compositeur, **pas à
+chaque `hyprctl reload`**. Le paquet Arch `solaar` ne fournit **pas** d'entrée
+XDG autostart (`/etc/xdg/autostart`) → pas de double lancement par uwsm.
+
+**Fichiers versionnés** (`config/solaar/` → `~/.config/solaar/`) — `rules.yaml` symlinké, `config.yaml` = graine copiée si absente :
+
+- `config.yaml` : réglages par appareil (liste YAML, 1 entrée par souris,
+  identifiée par `_modelId`/`_unitId`). Pour la MX Master 3 : `divert-keys`
+  `{195: 1}` = CID `0x00C3` (*Mouse Gesture Button*) **diverted** vers Solaar,
+  `dpi`, `smart-shift`, `scroll-ratchet`, molette hi-res…
+- `rules.yaml` : règles du Rule Editor (documents YAML séparés par `---`) :
+
+  ```yaml
+  - Key: [Mouse Gesture Button, pressed]
+  - KeyPress: [Super_L, depress]
+  ---
+  - Key: [Mouse Gesture Button, released]
+  - KeyPress: [Super_L, release]
+  ```
+
+  → bouton pouce **maintenu = Super maintenu** → `Super + clic-glisser` Hyprland.
+
+**Pourquoi `config.yaml` n'est plus symlinké (oct. 2026).** Solaar sauvegarde
+avec `open(path, "w")` → il suit un symlink et écrit dans le repo. Or
+`config.yaml` contient de l'**état machine** réécrit en continu (`_battery`,
+`_config_cookie`, `_absent`, `_unitId`, appareils détectés…) : le repo était
+perpétuellement « modifié » et poussait cet état aux autres utilisateurs. Même
+traitement que `spicetify/config-xpui.ini` : `install.sh` copie une **graine** si
+le fichier est absent (et convertit un ancien symlink en copie locale). Seul
+`rules.yaml` (portable) reste symlinké. Solaar est aussi passé de dépendance
+obligatoire à **appli optionnelle** (sélecteur d'`install.sh`).
+
+**uinput (Wayland).** La simulation de touches (`KeyPress`) passe par
+`/dev/uinput` (pas de XTest sous Wayland). Accès donné par la règle udev du
+paquet (`/usr/lib/udev/rules.d/42-logitech-unify-permissions.rules`, `uaccess`),
+effective **après reconnexion de session**. Rien à versionner côté `/etc`.
+
+**Nix.** Le paquet reste sur **pacman** (les règles udev doivent être installées
+au niveau système, ce que Home Manager ne fait pas sur Arch) ; seuls les deux
+symlinks sont dans `nix/home.nix`.
 
 ## Fonctionnement d'`install.sh`
 
@@ -389,5 +518,8 @@ local vars = require("variables")
 hl.bind("SUPER + Return", hl.dsp.exec_cmd(vars.terminal))
 
 -- règle fenêtre
-hl.windowrule({ "float" }, "class:^(pavucontrol)$")
+hl.window_rule({ match = { class = "com.saivert.pwvucontrol" }, float = true })
+
+-- changer un bind Caelestia : PAS de hl.bind en double (les deux partent),
+-- on redéfinit la variable dans hypr-vars.lua :  kbEmoji = "SUPER + semicolon"
 ```

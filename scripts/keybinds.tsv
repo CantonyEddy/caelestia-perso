@@ -13,12 +13,12 @@ Applications	HYPER + S	Signal (special ws) ★
 Applications	HYPER + A	KeePassXC (special ws) ★
 Applications	HYPER + N	zennotes ★
 Applications	HYPER + K	Cette cheat-sheet ★
-Applications	SUPER + D	Discord — vesktop ★
-Applications	SUPER + M	Spotify ★
+Applications	SUPER + D	Discord — vesktop (special ws) ★
+Applications	SUPER + M	Spotify (special ws) ★
 Applications	SUPER + ;	Sélecteur d'emoji ★
 Applications	SUPER + V	Presse-papiers (historique)
 Applications	SUPER + Alt + V	Presse-papiers (supprimer une entrée)
-Applications	Ctrl + Alt + V	Réglages audio (pavucontrol)
+Applications	Ctrl + Alt + V	Réglages audio (pwvucontrol)
 Fenêtres	SUPER + ←/→/↑/↓	Déplacer le focus (direction)
 Fenêtres	SUPER + Shift + ←/→/↑/↓	Déplacer la fenêtre (direction)
 Fenêtres	SUPER + clic gauche · SUPER + Z	Déplacer la fenêtre (souris)
