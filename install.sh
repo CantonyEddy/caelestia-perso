@@ -190,6 +190,9 @@ link "$REPO/hypr/hypr-user.lua"                 "$DEST/hypr-user.lua"
 link "$REPO/hypr/user"                          "$DEST/user"
 link "$REPO/fish/user-config.fish"              "$DEST/user-config.fish"
 link "$REPO/shell/shell.json"                   "$DEST/shell.json"
+# Config CLI Caelestia : toggles SUPER+D (vesktop) / SUPER+M (spotify), lue à la
+# fois par la fonction Lua fn.toggle et par `caelestia toggle`.
+link "$REPO/config/caelestia/cli.json"          "$DEST/cli.json"
 link "$REPO/shell/monitors/eDP-1/shell.json"    "$DEST/monitors/eDP-1/shell.json"
 link "$REPO/shell/monitors/HDMI-A-1/shell.json" "$DEST/monitors/HDMI-A-1/shell.json"
 # Prompt Starship perso : rien à symlinker ici. La config (config/starship.toml,

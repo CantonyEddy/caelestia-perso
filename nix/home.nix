@@ -40,6 +40,7 @@ in {
     "caelestia/user".source             = link "hypr/user";
     "caelestia/user-config.fish".source = link "fish/user-config.fish";
     "caelestia/shell.json".source       = link "shell/shell.json";
+    "caelestia/cli.json".source         = link "config/caelestia/cli.json";
 
     # --- Apps pur perso (~/.config/<app>/) ---
     "fuzzel/fuzzel.ini".source   = link "config/fuzzel/fuzzel.ini";

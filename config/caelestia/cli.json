@@ -1,0 +1,20 @@
+{
+    "toggles": {
+        "communication": {
+            "discord": {
+                "enable": false
+            },
+            "vesktop": {
+                "enable": true,
+                "match": [{ "class": "vesktop" }],
+                "command": ["uwsm", "app", "--", "vesktop"],
+                "move": true
+            }
+        },
+        "music": {
+            "spotify": {
+                "command": ["uwsm", "app", "--", "spotify"]
+            }
+        }
+    }
+}

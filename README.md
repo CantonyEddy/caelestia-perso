@@ -82,12 +82,12 @@ raccourci les **lance** si absentes, sinon **affiche/cache** leur fenêtre.
 | `HYPER+A` | KeePassXC — ws | ★ |
 | `HYPER+N` | zennotes | ★ |
 | `HYPER+K` | Aide-mémoire des raccourcis (cette fiche) | ★ |
-| `SUPER+D` | Discord (vesktop) | ★ |
-| `SUPER+M` | Spotify | ★ |
+| `SUPER+D` | Discord (vesktop) — ws communication | ★ |
+| `SUPER+M` | Spotify — ws music | ★ |
 | `SUPER+;` | Sélecteur d'emoji | ★ |
 | `SUPER+V` | Presse-papiers (historique) | |
 | `SUPER+Alt+V` | Presse-papiers (supprimer une entrée) | |
-| `Ctrl+Alt+V` | Réglages audio (pavucontrol) | |
+| `Ctrl+Alt+V` | Réglages audio (pwvucontrol) | |
 
 ### Fenêtres — focus & déplacement
 
@@ -117,7 +117,9 @@ Touches AZERTY : `)` = à droite de `à` · `=` = bout de rangée · `*` = à dr
 | `SUPER+Q` | Fermer la fenêtre | |
 
 Le `−`/`\*`/PiP sont **rebindés par keycode** pour rester joignables en AZERTY
-(le `\` d'origine de Caelestia = `AltGr+8`, inatteignable).
+(le `\` d'origine de Caelestia = `AltGr+8`, inatteignable ; le `-` tombait sur la
+touche 6 et déclenchait aussi « bureau 6 »). Ils sont redéfinis via les variables
+`kb*` de `hypr/hypr-vars.lua`, jamais par un second `hl.bind`.
 
 ### Groupes de fenêtres (onglets)
 

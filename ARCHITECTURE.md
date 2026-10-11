@@ -19,7 +19,28 @@ en **Lua** (plus en hyprlang `.conf`). D'après `~/.config/hypr/hyprland.lua` :
   TABLE de données (`return { ... }`), fusionnée dans leurs variables.
 - ligne ~76 : `require("hypr-user")` (tout à la fin) → **hypr-user.lua** est du
   VRAI code Lua Hyprland (`hl.config`, `hl.bind`…), chargé après tout le reste,
-  donc ces réglages gagnent.
+  donc ces réglages gagnent — **sauf les keybinds** (voir ci-dessous).
+
+### ⚠️ Keybinds : pas de « dernier gagne »
+
+Vérifié dans le source de Hyprland 0.56 (`CKeybindManager::handleKeybinds`) :
+quand plusieurs `hl.bind` correspondent à la même combinaison, **ils se
+déclenchent tous**. Ajouter dans `user/keybinds.lua` un bind sur une touche déjà
+prise par Caelestia ne la remplace donc pas : les deux actions partent.
+
+Règle du repo :
+- raccourci **Caelestia à modifier** → redéfinir sa variable `kb*` dans
+  `hypr-vars.lua` (le bind d'origine n'est alors jamais créé). Depuis Caelestia
+  `f6d5250` (juil. 2026) quasiment tous leurs binds sont pilotés par variable ;
+- `user/keybinds.lua` → **uniquement des combinaisons libres** chez Caelestia ;
+- apps lancées par les toggles Caelestia (`SUPER+D`, `SUPER+M`…) →
+  `config/caelestia/cli.json`, section `toggles` (lue par la fonction Lua
+  `fn.toggle` et par `caelestia toggle`).
+
+Bugs que ça corrigeait (oct. 2026) : `SUPER+6` (= `-` en AZERTY) allait au bureau 6
+**et** rétrécissait la fenêtre ; `Ctrl+SUPER+6` changeait de groupe **et** passait
+au morceau précédent ; `SUPER+D`/`SUPER+M` faisaient le toggle **et** relançaient
+l'app.
 
 `package.path` inclut `~/.config/caelestia/?.lua`, donc depuis hypr-user.lua,
 `require("user.input")` charge `~/.config/caelestia/user/input.lua` (le dossier
@@ -69,7 +90,8 @@ config/
 ├── cava/config
 ├── htop/htoprc
 ├── zed/settings.json + keymap.json
-└── solaar/config.yaml + rules.yaml   # souris Logitech MX Master 3
+├── solaar/config.yaml + rules.yaml   # souris Logitech MX Master 3
+└── caelestia/cli.json                # -> ~/.config/caelestia/cli.json (toggles SUPER+D/M)
 ```
 
 (Spicetify n'est PAS dans cette liste : `config-xpui.ini` n'est plus versionné —
@@ -206,7 +228,8 @@ config/sddm/
 │   ├── 20-wayland.conf     [Wayland]   CompositorCommand=...
 │   ├── 30-autologin.conf   [Autologin] (placeholder commenté)
 │   └── 40-users.conf       [Users]     (placeholder commenté)
-└── hyprland-greeter.conf      (hyprlang -> /etc/sddm/)
+├── hyprland-greeter.conf      (hyprlang -> /etc/sddm/)  ← DÉPLOYÉ
+└── hyprland-greeter.lua       (Lua, migration 0.57)     ← PAS déployé
 ```
 
 `hyprland-greeter.conf` est la config **Hyprland** (format hyprlang, pas INI) du
@@ -220,6 +243,29 @@ Contrairement au reste, ces fichiers sont **copiés** (pas symlinkés) vers `/et
 via `sudo` (fonction `copy_root` d'`install.sh`) : `/etc` reste indépendant du
 home (pas de fichier lu par root pointant vers un home utilisateur). Contrepartie :
 après toute modif d'un drop-in, **relancer `install.sh`** pour resynchroniser `/etc`.
+
+### 🔴 Migration du greeter avant Hyprland 0.57
+
+Hyprland 0.57 **supprime le format `.conf`** (upstream `a9902ea6`, « config: remove
+legacy config support », présent sur `main`, pas dans 0.56.x) : tout `--config`
+sera lu comme du Lua. `hyprland-greeter.conf` ne chargera alors plus.
+`hyprland-greeter.lua` est la traduction 1:1, autonome (pas de `require`, pas de
+HOME). Il n'est **ni copié par install.sh ni référencé** par `20-wayland.conf`.
+
+Rappel : une 1re tentative de bascule en `.lua` (été 2026) a donné un écran noir
+au boot. Cause jamais établie → on teste hors du chemin de boot :
+
+1. Snapshot du système.
+2. `sudo install -m 0644 config/sddm/hyprland-greeter.lua /etc/sddm/hyprland-greeter.lua`
+   (ajout seul, le `.conf` et `20-wayland.conf` restent intacts).
+3. `sudo -u sddm Hyprland --verify-config --config /etc/sddm/hyprland-greeter.lua`
+   → doit sortir sans erreur (vérifie aussi que l'utilisateur sddm peut le lire).
+4. Test imbriqué depuis la session : `Hyprland --config /etc/sddm/hyprland-greeter.lua`
+   (s'ouvre dans une fenêtre ; vérifier fond noir + AZERTY, puis fermer).
+5. Seulement alors : `CompositorCommand=... --config /etc/sddm/hyprland-greeter.lua`
+   dans `20-wayland.conf`, ajout du `copy_root` dans `install.sh`, **garder le
+   `.conf`** en place, reboot avec un TTY (`Ctrl+Alt+F3`) prêt pour revenir en
+   arrière. En attendant : ne pas installer Hyprland 0.57.
 
 **L'esthétique reste hors repo** : `theme.conf` (`Current=nier-automata`) n'est
 jamais versionné ni écrasé par `install.sh`.
@@ -450,5 +496,8 @@ local vars = require("variables")
 hl.bind("SUPER + Return", hl.dsp.exec_cmd(vars.terminal))
 
 -- règle fenêtre
-hl.windowrule({ "float" }, "class:^(pavucontrol)$")
+hl.window_rule({ match = { class = "com.saivert.pwvucontrol" }, float = true })
+
+-- changer un bind Caelestia : PAS de hl.bind en double (les deux partent),
+-- on redéfinit la variable dans hypr-vars.lua :  kbEmoji = "SUPER + semicolon"
 ```
