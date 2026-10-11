@@ -49,7 +49,7 @@ in {
     "zed/settings.json".source   = link "config/zed/settings.json";
     "zed/keymap.json".source     = link "config/zed/keymap.json";
     # Solaar : le paquet reste sur pacman (règles udev /dev/uinput système)
-    "solaar/config.yaml".source  = link "config/solaar/config.yaml";
+    # solaar/config.yaml = état machine : graine copiée par install.sh, pas géré ici.
     "solaar/rules.yaml".source   = link "config/solaar/rules.yaml";
   };
 

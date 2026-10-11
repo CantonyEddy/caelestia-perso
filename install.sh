@@ -38,7 +38,6 @@ DEPS=(
   "zeditor:zed"                       # éditeur Zed (le binaire s'appelle zeditor)
   "spicetify:spicetify-cli"           # thème Spotify (AUR)
   "sddm:sddm"                         # display manager
-  "solaar:solaar"                     # souris Logitech MX Master 3 (réglages + règles)
 )
 
 # Applications lancées par les raccourcis (binaire:paquet). Proposées à
@@ -54,6 +53,7 @@ APPS=(
   "vesktop:vesktop"                   # SUPER+D (AUR : vesktop ou vesktop-bin)
   "spotify:spotify"                   # SUPER+M (AUR)
   "keepassxc:keepassxc"               # HYPER+A
+  "solaar:solaar"                     # souris Logitech (MX Master 3) — optionnel
 )
 
 # hm_managed : vrai si la cible est un symlink posé par Home Manager (→ /nix/store).
@@ -211,11 +211,23 @@ link "$REPO/config/cava/config"                      "$CFG/cava/config"
 link "$REPO/config/htop/htoprc"                      "$CFG/htop/htoprc"
 link "$REPO/config/zed/settings.json"                "$CFG/zed/settings.json"
 link "$REPO/config/zed/keymap.json"                  "$CFG/zed/keymap.json"
-# Solaar (MX Master 3) : réglages appareil + règles du Rule Editor. Solaar
-# réécrit ces fichiers en suivant le symlink (open(…, "w")) → les changements
-# faits dans l'UI Solaar arrivent directement dans le repo.
-link "$REPO/config/solaar/config.yaml"               "$CFG/solaar/config.yaml"
+# Solaar (souris Logitech, optionnel) :
+#  - rules.yaml (règles du Rule Editor, portables) -> symlink ;
+#  - config.yaml = ÉTAT MACHINE (n° d'unité, cookie, batterie… réécrits en
+#    continu par Solaar) -> PAS de symlink (polluait le repo), seulement une
+#    graine copiée si absente. Même logique que spicetify/config-xpui.ini.
 link "$REPO/config/solaar/rules.yaml"                "$CFG/solaar/rules.yaml"
+scfg_solaar="$CFG/solaar/config.yaml"
+if [[ -L "$scfg_solaar" && "$(readlink -f "$scfg_solaar")" == "$REPO"/* ]]; then
+  cp --remove-destination "$(readlink -f "$scfg_solaar")" "$scfg_solaar"
+  echo "  ~ $scfg_solaar : ancien symlink remplacé par une copie locale"
+elif [[ ! -e "$scfg_solaar" ]] && ! hm_managed "$scfg_solaar"; then
+  mkdir -p "$(dirname "$scfg_solaar")"
+  cp "$REPO/config/solaar/config.yaml" "$scfg_solaar"
+  echo "  → $scfg_solaar (graine copiée)"
+else
+  echo "  = $scfg_solaar (local, laissé)"
+fi
 # logiops (logid) et Solaar se disputent la souris : un seul des deux.
 if systemctl is-enabled --quiet logid 2>/dev/null || pgrep -x logid >/dev/null 2>&1; then
   echo "  ! logiops (logid) actif : conflit avec Solaar → sudo systemctl disable --now logid"

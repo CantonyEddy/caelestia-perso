@@ -90,7 +90,7 @@ config/
 ├── cava/config
 ├── htop/htoprc
 ├── zed/settings.json + keymap.json
-├── solaar/config.yaml + rules.yaml   # souris Logitech MX Master 3
+├── solaar/rules.yaml (symlink) + config.yaml (graine copiée)  # souris Logitech, optionnel
 └── caelestia/cli.json                # -> ~/.config/caelestia/cli.json (toggles SUPER+D/M)
 ```
 
@@ -357,7 +357,7 @@ si `logid` est actif.
 
 ```lua
 hl.on("hyprland.start", function()
-    hl.exec_cmd("uwsm app -- solaar --window=hide")
+    hl.exec_cmd("command -v solaar >/dev/null && uwsm app -- solaar --window=hide")
 end)
 ```
 
@@ -366,7 +366,7 @@ Caelestia) : le callback ne tourne qu'au démarrage du compositeur, **pas à
 chaque `hyprctl reload`**. Le paquet Arch `solaar` ne fournit **pas** d'entrée
 XDG autostart (`/etc/xdg/autostart`) → pas de double lancement par uwsm.
 
-**Fichiers versionnés** (`config/solaar/` → `~/.config/solaar/`, symlinks) :
+**Fichiers versionnés** (`config/solaar/` → `~/.config/solaar/`) — `rules.yaml` symlinké, `config.yaml` = graine copiée si absente :
 
 - `config.yaml` : réglages par appareil (liste YAML, 1 entrée par souris,
   identifiée par `_modelId`/`_unitId`). Pour la MX Master 3 : `divert-keys`
@@ -384,13 +384,15 @@ XDG autostart (`/etc/xdg/autostart`) → pas de double lancement par uwsm.
 
   → bouton pouce **maintenu = Super maintenu** → `Super + clic-glisser` Hyprland.
 
-**Écriture à travers le symlink.** Solaar sauvegarde avec `open(path, "w")`
-(pas de fichier temporaire + `rename`) → il **suit le symlink** et écrit dans le
-repo, le lien n'est pas remplacé par un fichier réel. Idem via Home Manager
-(`~/.config → /nix/store → repo`). Conséquence : `config.yaml` bouge quand Solaar
-met à jour de l'état (`_battery`, `_config_cookie`, `_absent`…) ou quand un nouvel
-appareil Logitech est détecté (ex. l'entrée G502 est présente) → relire le diff
-avant de committer.
+**Pourquoi `config.yaml` n'est plus symlinké (oct. 2026).** Solaar sauvegarde
+avec `open(path, "w")` → il suit un symlink et écrit dans le repo. Or
+`config.yaml` contient de l'**état machine** réécrit en continu (`_battery`,
+`_config_cookie`, `_absent`, `_unitId`, appareils détectés…) : le repo était
+perpétuellement « modifié » et poussait cet état aux autres utilisateurs. Même
+traitement que `spicetify/config-xpui.ini` : `install.sh` copie une **graine** si
+le fichier est absent (et convertit un ancien symlink en copie locale). Seul
+`rules.yaml` (portable) reste symlinké. Solaar est aussi passé de dépendance
+obligatoire à **appli optionnelle** (sélecteur d'`install.sh`).
 
 **uinput (Wayland).** La simulation de touches (`KeyPress`) passe par
 `/dev/uinput` (pas de XTest sous Wayland). Accès donné par la règle udev du

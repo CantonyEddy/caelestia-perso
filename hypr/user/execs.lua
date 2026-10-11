@@ -9,7 +9,8 @@ hl.on("hyprland.start", function()
     -- Solaar : réglages Logitech MX Master 3 appliqués côté logiciel (pas de
     -- mémoire onboard) + règles bouton pouce → Super. Doit tourner en continu.
     -- Config : config/solaar/ (symlinkée dans ~/.config/solaar/).
-    hl.exec_cmd("uwsm app -- solaar --window=hide")
+    -- Optionnel : ne lance rien si solaar n'est pas installé (autres machines).
+    hl.exec_cmd("command -v solaar >/dev/null && uwsm app -- solaar --window=hide")
 end)
 
 return true

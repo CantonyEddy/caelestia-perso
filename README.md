@@ -232,10 +232,15 @@ Solaar applique les réglages **côté logiciel, en continu** : il est lancé au
 démarrage de Hyprland (`hypr/user/execs.lua`, fenêtre cachée) et doit tourner
 en permanence.
 
-Réglages versionnés (`config/solaar/`, symlinkés dans `~/.config/solaar/`) :
+Solaar est **optionnel** : proposé par le sélecteur d'applis d'`install.sh`, et
+lancé au démarrage seulement s'il est installé.
 
-- `config.yaml` : réglages de l'appareil (diversion, DPI, molette…) ;
-- `rules.yaml` : règles du Rule Editor.
+Réglages versionnés (`config/solaar/`) :
+
+- `rules.yaml` : règles du Rule Editor → **symlinké** dans `~/.config/solaar/` ;
+- `config.yaml` : réglages de l'appareil (diversion, DPI, molette…) → **graine**
+  copiée une seule fois si absente (Solaar y réécrit en continu de l'état propre
+  à la machine : n° d'unité, batterie… → pas de symlink).
 
 Ce qui est configuré :
 
@@ -250,8 +255,9 @@ Notes :
 - Sous Wayland, la simulation de touches passe par `/dev/uinput` : les règles
   udev du paquet `solaar` donnent l'accès, **après une reconnexion de session**
   (à faire une fois après la 1re installation).
-- Modifier les réglages dans l'UI Solaar écrit **directement dans le repo** (via
-  le symlink) → penser à committer.
+- Modifier les **règles** dans l'UI Solaar écrit directement dans le repo (symlink)
+  → penser à committer. Pour mettre à jour la graine `config.yaml` :
+  `cp ~/.config/solaar/config.yaml config/solaar/`.
 - **Piper reste utilisé pour la G502** (elle a une mémoire onboard). Ne **pas**
   faire tourner **logiops** (`logid`) en même temps que Solaar (`install.sh`
   prévient s'il est actif).
@@ -274,7 +280,7 @@ sudo systemctl enable --now keyd
 `install.sh` :
 
 - **installe les dépendances** manquantes (keyd, uwsm, fuzzel, cava, htop, zed,
-  spicetify, sddm, solaar) via `paru`/`yay` ;
+  spicetify, sddm) via `paru`/`yay` ;
 - **propose d'installer les applis des raccourcis** (Steam, Obsidian, Claude,
   Thunderbird, Signal, Spotify, Discord, zennotes) via un petit **sélecteur** —
   tu choisis tout, rien, ou une partie (par numéros) ;
