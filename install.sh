@@ -329,7 +329,8 @@ if [[ -d "$REPO/config/sddm/conf.d" ]]; then
       echo "  ! hyprland-greeter.lua NON validé par Hyprland --verify-config :"
       echo "    le greeter reste sur hyprland-greeter.conf (OK jusqu'à Hyprland 0.56)."
       tmp="$(mktemp)"
-      sed 's#/etc/sddm/hyprland-greeter\.lua#/etc/sddm/hyprland-greeter.conf#' "$f" > "$tmp"
+      sed 's#hyprland-greeter[.]lua#hyprland-greeter.conf#' "$f" > "$tmp"
+      grep -q '^CompositorCommand=.*hyprland-greeter[.]conf' "$tmp" || { echo "  ! variante .conf introuvable : 20-wayland.conf non modifié"; rm -f "$tmp"; continue; }
       copy_root "$tmp" "/etc/sddm.conf.d/20-wayland.conf"
       rm -f "$tmp"
       continue
