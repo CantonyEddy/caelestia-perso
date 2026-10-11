@@ -9,13 +9,7 @@
 --  * SUPER+D / SUPER+M = toggles natifs Caelestia (communication / music) ; les
 --    apps (vesktop, spotify) sont déclarées dans config/caelestia/cli.json.
 
--- Special workspaces perso : "lance si absente, sinon montre/cache".
--- app-ws.sh lance l'app si absente (une window rule l'envoie dans special:<nom>)
--- puis `caelestia toggle <nom>` affiche/cache le workspace (toggle compatible
--- avec le dispatch Lua de Caelestia, contrairement à `hyprctl dispatch`).
-local appws = "bash $HOME/.local/share/caelestia-perso/scripts/app-ws.sh"
-hl.bind("SUPER + G", hl.dsp.exec_cmd(appws .. " steam steam uwsm app -- steam"))
-hl.bind("SUPER + O", hl.dsp.exec_cmd(appws .. " md.obsidian.Obsidian obsidian uwsm app -- obsidian"))
+-- Apps à special workspace (SUPER+G/O, HYPER+C/T/S/A) : voir user/special.lua.
 
 -- Anti-veille : bascule un verrou Wayland idle-inhibit (respecté par Hyprland,
 -- donc stoppe la mise en veille / le verrou d'écran auto). Pour les vidéos.
@@ -38,11 +32,7 @@ hl.bind("SUPER + I", hl.dsp.exec_cmd("bash $HOME/.local/share/caelestia-perso/sc
 --   F16 -> Linux 186 -> code:194
 --   F17 -> Linux 187 -> code:195
 -- Correspondance lettre -> F-key définie dans config/keyd/default.conf.
-hl.bind("code:191", hl.dsp.exec_cmd(appws .. " com.anthropic.Claude claude uwsm app -- claude-desktop")) -- HYPER + C : Claude (special ws)
 hl.bind("code:192", hl.dsp.exec_cmd("uwsm app -- zennotes"))       -- HYPER + N : zennotes
-hl.bind("code:193", hl.dsp.exec_cmd(appws .. " org.mozilla.Thunderbird thunderbird uwsm app -- thunderbird")) -- HYPER + T : Thunderbird (special ws)
-hl.bind("code:194", hl.dsp.exec_cmd(appws .. " signal signal uwsm app -- signal-desktop")) -- HYPER + S : Signal (special ws)
-hl.bind("code:195", hl.dsp.exec_cmd(appws .. " org.keepassxc.KeePassXC keepassxc uwsm app -- keepassxc")) -- HYPER + A : KeePassXC
 
 -- HYPER + K : cheat-sheet des raccourcis (façon Omarchy). keyd envoie K en F23
 -- (code:201). On ouvre une fenêtre foot 'caelestia-keybinds' qui lance fzf sur

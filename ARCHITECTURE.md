@@ -319,26 +319,33 @@ Prérequis machine : `paru -S keyd && sudo systemctl enable --now keyd`.
 
 Certaines apps vivent dans un **special workspace** (scratchpad Hyprland) plutôt
 que dans les workspaces numérotés : Steam (`SUPER+G`), Obsidian (`SUPER+O`),
-Claude (`HYPER+C`).
+Claude (`HYPER+C`), Thunderbird (`HYPER+T`), Signal (`HYPER+S`), KeePassXC (`HYPER+A`).
 
-Le toggle passe par **`caelestia toggle <nom>`** (et non `hyprctl dispatch
-togglespecialworkspace`, qui échoue ici : la config Hyprland est en Lua →
-`hyprctl dispatch` est évalué comme du Lua). Mais `caelestia toggle` seul ne
-**lance pas** l'app absente. Trois ingrédients :
+**Source de vérité unique : `hypr/user/special.lua`** (oct. 2026). Une table
+`APPS` (`key`, `ws`, `class`, `cmd`) génère pour chaque app :
 
-- des **window rules par tags** (`user/rules.lua`) épinglent l'app à son scratchpad.
-  Depuis la réécriture des window rules (Hyprland 0.53+), l'assignation directe
-  `workspace = "special:x"` par classe ne marche plus ; on tague donc la fenêtre
-  par classe (`tag = "+ws_steam"`) puis, **après tous les taguages**, on envoie les
-  fenêtres taguées vers leur workspace (`match = { tag = "ws_steam" }, workspace = "special:steam"`) — même schéma que Caelestia ;
-- le script **`scripts/app-ws.sh <class> <ws> <cmd>`** : si l'app tourne →
-  `caelestia toggle <ws>` (montre/cache) ; sinon → il la lance (la rule la range
-  dans `special:<ws>`) puis `caelestia toggle <ws>` pour l'afficher ;
-- les **raccourcis** (`user/keybinds.lua`) appellent ce script.
+1. la règle de **tag** (`class` → `ws_<ws>`) ;
+2. après tous les taguages, la règle de **routage** (`ws_<ws>` → `special:<ws>`)
+   — schéma imposé par la réécriture des window rules (Hyprland 0.53+) ;
+3. le **raccourci** → `scripts/app-ws.sh <class> <ws> <cmd>`.
 
-Un seul raccourci fait donc tout : lancer si absente, montrer/cacher sinon.
-(Une piste plus intégrée existe — les toggles `cli.json` de la CLI Caelestia —
-mais son format exact n'a pas pu être fiabilisé, on s'en tient au script testé.)
+Avant, la classe était recopiée à trois endroits (`keybinds.lua` + 2 règles dans
+`rules.lua`) : un écart suffisait à faire décrocher l'app (Obsidian a changé de
+classe deux fois). La classe est maintenant convertie en regex **exacte et
+insensible à la casse** (`(?i)` + échappement) ; Hyprland compare les règles en
+`FullMatch` (RE2), donc `steam` ne capture **pas** les jeux `steam_app_123`.
+
+`scripts/app-ws.sh` (inchangé, testé) : si une fenêtre de la classe existe →
+`caelestia toggle <ws>` ; sinon il lance l'app, **attend** (≤ 8 s) qu'une fenêtre
+de la classe soit routée dans `special:<ws>`, puis toggle (anti-race avec
+`close_special_on_empty`). Le toggle passe par `caelestia toggle` et jamais par
+`hyprctl dispatch` (évalué comme du Lua dans cette config).
+
+Pourquoi pas les toggles natifs `cli.json` de Caelestia (utilisés pour SUPER+D/M) :
+leur détection est une **sous-chaîne sensible à la casse** (`string.find` /
+`in` Python) → `steam` capturerait les jeux et les y déplacerait, et la casse
+d'Obsidian casserait la détection. Ils montrent aussi le workspace vide AVANT
+la naissance de la fenêtre (la race qu'`app-ws.sh` évite).
 
 Quand la dernière fenêtre d'un special workspace se ferme, il se **referme tout
 seul** (au lieu de laisser un scratchpad vide affiché) grâce à l'option native
