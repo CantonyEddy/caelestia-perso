@@ -74,6 +74,7 @@ raccourci les **lance** si absentes, sinon **affiche/cache** leur fenêtre.
 | `SUPER+W` | Navigateur (zen-browser) | ★ |
 | `SUPER+C` | Éditeur (zed) | ★ |
 | `SUPER+E` | Explorateur de fichiers (thunar) | |
+| `SUPER+A` | Lanceur d'apps (fuzzel) | ★ |
 | `SUPER+G` | Steam — ws | ★ |
 | `SUPER+O` | Obsidian — ws | ★ |
 | `HYPER+C` | Claude — ws | ★ |

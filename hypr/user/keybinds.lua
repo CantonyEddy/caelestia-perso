@@ -16,6 +16,12 @@
 -- Dépend de wlinhibit (AUR) : paru -S wlinhibit
 hl.bind("SUPER + I", hl.dsp.exec_cmd("bash $HOME/.local/share/caelestia-perso/scripts/idle-toggle.sh"))
 
+-- Lanceur fuzzel (config perso : config/fuzzel/fuzzel.ini). Bind par LETTRE (keysym)
+-- comme SUPER+I : suit la touche « A » quelle que soit la disposition. Combo libre
+-- chez Caelestia (vérifié upstream). "pkill fuzzel ||" = re-appuyer ferme le menu
+-- (même pattern que les binds clipboard/emoji de Caelestia).
+hl.bind("SUPER + A", hl.dsp.exec_cmd("pkill fuzzel || uwsm app -- fuzzel"))
+
 -- ============================================================
 -- Couche HYPER (Caps Lock maintenu, via keyd)
 -- ============================================================
