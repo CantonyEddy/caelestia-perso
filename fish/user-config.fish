@@ -9,6 +9,10 @@ alias h "tldr"
 alias d "gdu"
 alias i "paru -S"
 alias u "caelestia update"
+# r = désinstaller (paquet + dépendances orphelines + configs système).
+# abbr plutôt qu'alias : se déplie en « sudo pacman -Rns » avant exécution,
+# on voit la commande complète -> plus sûr pour une commande destructive.
+abbr r "sudo pacman -Rns"
 alias v "nvim"
 
 # --- Variables d'environnement ---
@@ -39,6 +43,17 @@ end
 # abbr dc 'docker compose'
 
 # --- Fonctions ---
+# up : MAJ complète = système (caelestia update) puis override caelestia-perso
+# (pull + install.sh). Fonction plutôt qu'alias : ne change pas le dossier
+# courant (git -C), et s'arrête à la 1re étape qui échoue.
+function up --description "MAJ système (caelestia) + override caelestia-perso"
+    set -l repo $HOME/.local/share/caelestia-perso
+    caelestia update; or return
+    # --ff-only : refuse de créer un merge si l'historique local a divergé
+    git -C $repo pull --ff-only; or return
+    $repo/install.sh
+end
+
 # function mkcd
 #     mkdir -p $argv[1] && cd $argv[1]
 # end
