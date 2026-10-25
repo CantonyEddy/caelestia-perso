@@ -5,6 +5,7 @@ Applications	SUPER + T	Terminal (foot)
 Applications	SUPER + W	Navigateur — zen-browser ★
 Applications	SUPER + C	Éditeur — zed ★
 Applications	SUPER + E	Explorateur de fichiers — thunar
+Applications	SUPER + A	Lanceur d'apps — fuzzel ★
 Applications	SUPER + G	Steam (special ws) ★
 Applications	SUPER + O	Obsidian (special ws) ★
 Applications	HYPER + C	Claude (special ws) ★
